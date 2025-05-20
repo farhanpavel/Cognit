@@ -12,6 +12,7 @@ web-build/
 ios/
 android/
 .env
+google-services.json
 
 
 # macOS
