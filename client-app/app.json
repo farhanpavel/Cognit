@@ -14,7 +14,7 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "ai.kf",
+      "bundleIdentifier": "ai.kf.cognit",
       "config": {
       }
     },
@@ -39,7 +39,7 @@
         "com.android.alarm.permission.SET_ALARM",
         "android.permission.SCHEDULE_EXACT_ALARM"
       ],
-      "package": "ai.kf",
+      "package": "ai.kf.cognit",
       "config": {
 
       }
