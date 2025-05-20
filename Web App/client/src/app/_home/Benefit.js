@@ -137,7 +137,7 @@ export default function Benefit() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-occean py-20 px-4">
+      <div className="bg-emerald-800 py-20 px-4">
         <div className="container mx-auto max-w-6xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
             Ready to Experience These Benefits?
@@ -146,7 +146,7 @@ export default function Benefit() {
             Join thousands of satisfied customers who have transformed their
             businesses with our platform.
           </p>
-          <button className="px-8 py-4 bg-white text-occean font-bold rounded-full hover:bg-white/90 transition-colors flex items-center gap-2 mx-auto">
+          <button className="px-8 py-4 bg-white text-emerald-800 font-bold rounded-full hover:bg-white/90 transition-colors flex items-center gap-2 mx-auto">
             Contact us
             <ArrowRight className="h-5 w-5" />
           </button>

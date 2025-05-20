@@ -1,146 +1,197 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import {
-  AlignEndHorizontal,
-  AlignHorizontalJustifyCenter,
-  AudioWaveform,
-  Blinds,
-  BrickWall,
-  CircleAlert,
-  CircleArrowOutUpRight,
-  CircleCheck,
-  Router,
+  AlignHorizontalDistributeCenter,
+  BookAudio,
+  Briefcase,
+  CircleArrowOutDownRight,
+  Lightbulb,
+  Volume1,
 } from "lucide-react";
+import Image from "next/image";
 import React from "react";
 import { FaGooglePlay, FaSpotify, FaAirbnb } from "react-icons/fa";
 import { GrGoogleWallet } from "react-icons/gr";
 import { CgAdidas } from "react-icons/cg";
 import { SiPuma } from "react-icons/si";
-import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+
 export default function Hero() {
-  const router = useRouter();
   return (
     <div className="font-mona">
-      <div>
-        <div className="flex flex-col items-center justify-center mt-[4%] ">
-          <div>
-            <h1 className="text-6xl font-semibold leading-[4.2rem] text-[#322372]">
-              Top <span className="text-tertiary">Sales Funnel Builder</span> to
-              Boost <br /> Conversation & Maximize Profits
-            </h1>
-          </div>
-          <div>
-            <p className="text-[#5a5a5a] text-lg font-medium w-[65%] mx-auto text-center mt-7">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. Et quae
-              consequuntur eligendi veniam tempore, commodi quas minima unde
-              corporis provident Lorem ipsum dolor sit..
-            </p>
-          </div>
-          <div className="grid grid-cols-6 gap-10 mt-10">
-            <div>
-              <CircleCheck
-                strokeWidth={2}
-                className="w-20 h-20   text-tertiary shadow-xl bg-white p-6 rounded-lg"
-              />
-              <h1 className="text-xs leading-4 text-center mt-2 text-[#322372] font-semibold">
-                Wordpress <br /> Developer
-              </h1>
-            </div>
-            <div>
-              <AlignHorizontalJustifyCenter
-                strokeWidth={2}
-                className="w-20 h-20   text-tertiary shadow-xl bg-white p-6 rounded-lg"
-              />
-              <h1 className="text-xs leading-4 text-center mt-2 text-[#322372] font-semibold">
-                Hello <br /> Word
-              </h1>
-            </div>
-            <div>
-              <AudioWaveform
-                strokeWidth={2}
-                className="w-20 h-20  text-tertiary shadow-xl bg-white p-6 rounded-lg"
-              />
-              <h1 className="text-xs leading-4 text-center mt-2 text-[#322372] font-semibold">
-                Ki Khobor <br /> Pavel
-              </h1>
-            </div>
-            <div>
-              <Blinds
-                strokeWidth={2}
-                className="w-20 h-20  text-tertiary shadow-xl bg-white p-6 rounded-lg"
-              />
-              <h1 className="text-xs leading-4 text-center mt-2 text-[#322372] font-semibold">
-                kemon <br /> Asow
-              </h1>
-            </div>
-            <div>
-              <BrickWall
-                strokeWidth={2}
-                className="w-20 h-20  text-tertiary  shadow-xl bg-white p-6 rounded-lg"
-              />
-              <h1 className="text-xs leading-4 text-center mt-2 text-[#322372] font-semibold">
-                Pari na <br /> kist
-              </h1>
-            </div>
-            <div>
-              <CircleArrowOutUpRight
-                strokeWidth={2}
-                className="w-20 h-20   text-tertiary shadow-xl bg-white p-6 rounded-lg"
-              />
-              <h1 className="text-xs leading-4 text-center mt-2 text-[#322372] font-semibold">
-                Parow tw <br /> naki
-              </h1>
-            </div>
-          </div>
-          <div className="space-x-5 mt-[4%]">
-            <Button
-              onClick={() => {
-                router.push("/signin");
-              }}
-              className="rounded-lg px-10 bg-tertiary text-white hover:bg-purple-700"
-            >
-              Signin
-            </Button>
-            <Button
-              onClick={() => {
-                router.push("/signin");
-              }}
-              className="rounded-lg px-10 border-tertiary bg-white border-[1.5px] text-tertiary hover:bg-white hover:text-tertiary"
-            >
+      <div className="flex justify-around">
+        <div className="flex  flex-col  mt-[10%]  w-[40%] space-y-5">
+          <h1 className="text-5xl font-bold leading-[3.2rem]">
+            Up Your <span className="text-tertiary">Skills</span> to{" "}
+            <span className="text-tertiary">Advance</span> Your{" "}
+            <span className="text-tertiary">
+              {" "}
+              <span className="text-tertiary relative">
+                Career
+                <svg
+                  className="absolute -bottom-2 left-0 w-full"
+                  viewBox="0 0 200 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1 5.5C47.6667 1.83333 154.4 -2.6 199 5"
+                    stroke="#00C897"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+            </span>{" "}
+            Path
+          </h1>
+          <p className="text-lg text-[#646464]">
+            lorem ipsum dolor sit, amet consectetur adipisicing elit. Quibusdam,
+            culpa.
+          </p>
+          <div className="space-x-4">
+            <button className="bg-tertiary px-6 py-2 rounded-sm text-white font-medium">
+              Get Started
+            </button>
+            <button className="bg-[#EAFFF9]  px-6 py-2 rounded-sm text-tertiary font-medium">
               Signup
-            </Button>
+            </button>
+          </div>
+          <div className="flex space-x-4 mt-3">
+            <motion.div
+              className="flex items-center gap-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="p-2 rounded-lg bg-[#FFF6E9]">
+                <Briefcase className="text-[#F1BF5A] h-5 w-5" />
+              </div>
+              <span className="text-sm font-medium">Career-Oriented</span>
+            </motion.div>
+
+            <motion.div
+              className="flex items-center gap-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="p-2 rounded-lg bg-[#FFEEEA]">
+                <Volume1 className="text-[#F4876B] h-5 w-5" />
+              </div>
+              <span className="text-sm font-medium">Public Speaking</span>
+            </motion.div>
+
+            <motion.div
+              className="flex items-center gap-2"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+            >
+              <div className="p-2 rounded-lg bg-[#F9EAFF]">
+                <Lightbulb className="text-[#B4708D] h-5 w-5" />
+              </div>
+              <span className="text-sm font-medium">Creative Thinking</span>
+            </motion.div>
           </div>
         </div>
-        <div className="mt-[7%]">
-          <h1 className="text-[#322372] text-2xl font-semibold text-center">
-            Recommended and used by{" "}
-            <span className="text-tertiary">amazing business</span>
-          </h1>
-          <div className="flex  py-10 justify-center space-x-[5%] items-center">
-            <div className="flex items-center space-x-2 opacity-50">
-              <FaGooglePlay className="text-3xl " />
-              <h1 className="font-semibold text-sm">Google Pay</h1>
+        <div className="relative mb-10">
+          {" "}
+          {/* Added relative positioning container */}
+          {/* Image Container - Centered */}
+          <h1 className="bg-tertiary rounded-full w-6 h-6 mx-10"></h1>
+          <div className="bg-tertiary w-[420px] h-[420px] rounded-full flex items-center justify-center overflow-hidden mx-auto">
+            <Image
+              src="/images/student.png"
+              width={300}
+              height={300}
+              className="object-cover w-[80%] h-full mt-8"
+              alt="student"
+            />
+          </div>
+          <h1 className="bg-tertiary rounded-full w-6 h-6"></h1>
+          {/* Cards - Positioned absolutely around the image */}
+          <div className="absolute top-1/4 -left-36 w-[220px] shadow-lg rounded-sm bg-white border-[#20B486] border-[1px] p-4 flex items-center justify-between transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group">
+            <div className="flex items-center justify-center bg-[#20B486] rounded-xl w-12 h-12 text-white p-2 transition-all duration-300 group-hover:rotate-12">
+              <AlignHorizontalDistributeCenter className="w-6 h-6" />
             </div>
-            <div className="flex items-center space-x-2 opacity-50">
-              <FaSpotify className="text-3xl" />
-              <h1 className="font-semibold text-sm">Spotify</h1>
+            <div className="text-right ml-3">
+              <h1 className="text-2xl font-bold text-[#20B486]">2K+</h1>
+              <p className="text-sm font-medium text-gray-600 mt-1">
+                Video Courses
+              </p>
             </div>
-            <div className="flex items-center space-x-2 opacity-50">
-              <FaAirbnb className="text-3xl" />
-              <h1 className="font-semibold text-sm">Airbnb</h1>
+          </div>
+          <div className="absolute top-[10%] -right-10 w-[180px] shadow-lg rounded-sm bg-white border-[#20B486] border-[1px] p-4 flex justify-between items-center transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group">
+            <div className="flex items-center justify-center bg-[#20B486] rounded-xl w-12 h-12 text-white p-2 transition-all duration-300 group-hover:-rotate-12">
+              <CircleArrowOutDownRight className="w-6 h-6" />
             </div>
-            <div className="flex items-center space-x-2 opacity-50">
-              <GrGoogleWallet className="text-3xl" />
-              <h1 className="font-semibold text-sm">Google Wallet</h1>
+            <div className="text-right">
+              <h1 className="text-xl font-bold text-[#20B486]">5K+</h1>
+              <p className="text-xs font-medium text-gray-600 mt-1">
+                Online course
+              </p>
             </div>
-            <div className="flex items-center space-x-2 opacity-50">
-              <CgAdidas className="text-3xl" />
-              <h1 className="font-semibold text-sm">Addidas</h1>
+          </div>
+          <div className="absolute bottom-10 -right-10 w-[150px] shadow-lg rounded-sm bg-white border-[#20B486] border-[1px] p-3 flex justify-between items-center transition-all duration-300 hover:scale-[1.02] hover:shadow-xl group">
+            <div className="flex items-center justify-center bg-[#20B486] rounded-xl w-10 h-10 text-white p-2 transition-all duration-300 group-hover:rotate-6">
+              <BookAudio className="w-5 h-5" />
             </div>
-            <div className="flex items-center space-x-2 opacity-50">
-              <SiPuma className="text-3xl" />
-              <h1 className="font-semibold text-sm">Puma</h1>
+            <div className="text-right">
+              <p className="text-xs font-medium text-gray-600">Tutor</p>
+              <h1 className="text-xl font-bold text-[#20B486]">250+</h1>
             </div>
+          </div>
+        </div>
+      </div>
+      <div className="bg-white py-12">
+        <div className="flex flex-wrap justify-evenly gap-x-8 gap-y-8 items-center px-4">
+          {/* Google Play - Green */}
+          <div className="flex items-center space-x-2 group">
+            <FaGooglePlay className="text-3xl text-[#0F9D58] group-hover:scale-110 transition-transform" />
+            <h1 className="font-medium text-sm text-gray-600 group-hover:text-[#0F9D58] transition-colors">
+              Google Play
+            </h1>
+          </div>
+
+          {/* Spotify - Green */}
+          <div className="flex items-center space-x-2 group">
+            <FaSpotify className="text-3xl text-[#1DB954] group-hover:scale-110 transition-transform" />
+            <h1 className="font-medium text-sm text-gray-600 group-hover:text-[#1DB954] transition-colors">
+              Spotify
+            </h1>
+          </div>
+
+          {/* Airbnb - Pink */}
+          <div className="flex items-center space-x-2 group">
+            <FaAirbnb className="text-3xl text-[#FF5A5F] group-hover:scale-110 transition-transform" />
+            <h1 className="font-medium text-sm text-gray-600 group-hover:text-[#FF5A5F] transition-colors">
+              Airbnb
+            </h1>
+          </div>
+
+          {/* Google Wallet - Blue */}
+          <div className="flex items-center space-x-2 group">
+            <GrGoogleWallet className="text-3xl text-[#4285F4] group-hover:scale-110 transition-transform" />
+            <h1 className="font-medium text-sm text-gray-600 group-hover:text-[#4285F4] transition-colors">
+              Google Wallet
+            </h1>
+          </div>
+
+          {/* Adidas - Black */}
+          <div className="flex items-center space-x-2 group">
+            <CgAdidas className="text-3xl text-black group-hover:scale-110 transition-transform" />
+            <h1 className="font-medium text-sm text-gray-600 group-hover:text-black transition-colors">
+              Adidas
+            </h1>
+          </div>
+
+          {/* Puma - Red */}
+          <div className="flex items-center space-x-2 group">
+            <SiPuma className="text-3xl text-[#D5121A] group-hover:scale-110 transition-transform" />
+            <h1 className="font-medium text-sm text-gray-600 group-hover:text-[#D5121A] transition-colors">
+              Puma
+            </h1>
           </div>
         </div>
       </div>

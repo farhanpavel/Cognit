@@ -1,14 +1,6 @@
 "use client";
-import React, { useState, useEffect } from "react";
-import {
-  Eye,
-  EyeOff,
-  Mail,
-  Lock,
-  ArrowRight,
-  CheckCircle,
-  Router,
-} from "lucide-react";
+import { useState, useEffect } from "react";
+import { Eye, EyeOff, Mail, Lock, ArrowRight, CheckCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,8 +15,8 @@ import {
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
-import { url } from "@/components/Url/page";
 import Cookies from "js-cookie";
+
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
@@ -33,6 +25,7 @@ export default function SignIn() {
   const [animateIn, setAnimateIn] = useState(false);
   const [activeField, setActiveField] = useState(null);
   const router = useRouter();
+
   useEffect(() => {
     setAnimateIn(true);
   }, []);
@@ -42,7 +35,8 @@ export default function SignIn() {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`${url}/api/user/login`, {
+      // Replace with your actual API endpoint
+      const response = await fetch(`/api/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -55,7 +49,7 @@ export default function SignIn() {
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
-      console.log(data);
+
       Cookies.set("AccessToken", data.token.accessToken);
       Cookies.set("RefreshToken", data.token.refreshToken);
 
@@ -87,12 +81,12 @@ export default function SignIn() {
   return (
     <div className="min-h-screen flex">
       {/* Left side - Sign In Form */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-[#f8f7fe] to-[#f0eeff] relative overflow-hidden">
+      <div className="flex-1 flex items-center justify-center p-8 bg-gradient-to-br from-[#f8fefa] to-[#e6f7f0] relative overflow-hidden">
         {/* Decorative elements */}
-        <div className="absolute top-0 left-0 w-64 h-64 bg-[#7657ff]/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
-        <div className="absolute bottom-0 right-0 w-80 h-80 bg-[#7657ff]/10 rounded-full translate-x-1/2 translate-y-1/2"></div>
-        <div className="absolute top-1/4 right-1/4 w-20 h-20 bg-[#7657ff]/20 rounded-full"></div>
-        <div className="absolute bottom-1/3 left-1/4 w-16 h-16 bg-[#7657ff]/15 rounded-full"></div>
+        <div className="absolute top-0 left-0 w-64 h-64 bg-[#20B486]/10 rounded-full -translate-x-1/2 -translate-y-1/2"></div>
+        <div className="absolute bottom-0 right-0 w-80 h-80 bg-[#20B486]/10 rounded-full translate-x-1/2 translate-y-1/2"></div>
+        <div className="absolute top-1/4 right-1/4 w-20 h-20 bg-[#20B486]/20 rounded-full"></div>
+        <div className="absolute bottom-1/3 left-1/4 w-16 h-16 bg-[#20B486]/15 rounded-full"></div>
 
         <div
           className={`w-full max-w-md relative z-10 transition-all duration-700 ${
@@ -101,20 +95,20 @@ export default function SignIn() {
         >
           <div className="mb-8 flex justify-center">
             <img
-              src="/images/Group.png"
+              src="/images/Group.jpg"
               alt="Logo"
               className="h-14 transition-transform hover:scale-105"
             />
           </div>
 
-          <Card className="border-[#7657ff]/20 shadow-xl backdrop-blur-sm bg-white/90 overflow-hidden">
-            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#7657ff] to-[#322372]"></div>
+          <Card className="border-[#20B486]/20 shadow-xl backdrop-blur-sm bg-white/90 overflow-hidden">
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#20B486] to-[#158064]"></div>
 
             <CardHeader className="space-y-1 text-center">
-              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-[#322372] to-[#7657ff] bg-clip-text text-transparent">
+              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-[#158064] to-[#20B486] bg-clip-text text-transparent">
                 Welcome Back
               </CardTitle>
-              <CardDescription className="text-[#7657ff]/70">
+              <CardDescription className="text-[#20B486]/70">
                 We&apos;re excited to see you again
               </CardDescription>
             </CardHeader>
@@ -123,11 +117,11 @@ export default function SignIn() {
               {/* Google Sign In Button */}
               <Button
                 variant="outline"
-                className="w-full border-[#7657ff]/30 hover:bg-[#7657ff]/5 hover:border-[#7657ff]/50 transition-all duration-300 group relative overflow-hidden"
+                className="w-full border-[#20B486]/30 hover:bg-[#20B486]/5 hover:border-[#20B486]/50 transition-all duration-300 group relative overflow-hidden"
                 onClick={handleGoogleSignIn}
                 disabled={isLoading}
               >
-                <div className="absolute inset-0 w-0 bg-gradient-to-r from-[#7657ff]/10 to-[#7657ff]/20 transition-all duration-300 group-hover:w-full"></div>
+                <div className="absolute inset-0 w-0 bg-gradient-to-r from-[#20B486]/10 to-[#20B486]/20 transition-all duration-300 group-hover:w-full"></div>
                 <div className="relative flex items-center justify-center">
                   <svg className="mr-2 h-5 w-5" viewBox="0 0 24 24">
                     <path
@@ -182,7 +176,7 @@ export default function SignIn() {
                     <Mail
                       className={`absolute left-3 top-3 h-4 w-4 transition-colors duration-300 ${
                         activeField === "email"
-                          ? "text-[#7657ff]"
+                          ? "text-[#20B486]"
                           : "text-muted-foreground"
                       }`}
                     />
@@ -190,7 +184,7 @@ export default function SignIn() {
                       id="email"
                       type="email"
                       placeholder="name@example.com"
-                      className="pl-10 border-[#7657ff]/30 focus-visible:ring-[#7657ff] transition-all duration-300"
+                      className="pl-10 border-[#20B486]/30 focus-visible:ring-[#20B486] transition-all duration-300"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       onFocus={() => setActiveField("email")}
@@ -210,7 +204,7 @@ export default function SignIn() {
                     </Label>
                     <a
                       href="/forgot-password"
-                      className="text-xs text-[#7657ff] hover:underline transition-all hover:text-[#322372]"
+                      className="text-xs text-[#20B486] hover:underline transition-all hover:text-[#158064]"
                     >
                       Forgot password?
                     </a>
@@ -223,7 +217,7 @@ export default function SignIn() {
                     <Lock
                       className={`absolute left-3 top-3 h-4 w-4 transition-colors duration-300 ${
                         activeField === "password"
-                          ? "text-[#7657ff]"
+                          ? "text-[#20B486]"
                           : "text-muted-foreground"
                       }`}
                     />
@@ -231,7 +225,7 @@ export default function SignIn() {
                       id="password"
                       type={showPassword ? "text" : "password"}
                       placeholder="••••••••"
-                      className="pl-10 border-[#7657ff]/30 focus-visible:ring-[#7657ff] transition-all duration-300"
+                      className="pl-10 border-[#20B486]/30 focus-visible:ring-[#20B486] transition-all duration-300"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       onFocus={() => setActiveField("password")}
@@ -240,7 +234,7 @@ export default function SignIn() {
                     />
                     <button
                       type="button"
-                      className="absolute right-3 top-3 text-muted-foreground hover:text-[#7657ff] transition-colors"
+                      className="absolute right-3 top-3 text-muted-foreground hover:text-[#20B486] transition-colors"
                       onClick={() => setShowPassword(!showPassword)}
                     >
                       {showPassword ? (
@@ -258,7 +252,7 @@ export default function SignIn() {
                 <div className="flex items-center space-x-2">
                   <Checkbox
                     id="remember"
-                    className="text-[#7657ff] border-[#7657ff]/50"
+                    className="text-[#20B486] border-[#20B486]/50"
                   />
                   <Label htmlFor="remember" className="text-sm text-gray-600">
                     Remember me for 30 days
@@ -267,7 +261,7 @@ export default function SignIn() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-[#7657ff] to-[#322372] hover:from-[#322372] hover:to-[#7657ff] transition-all duration-500 text-white font-medium py-2 px-4 rounded-md shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group"
+                  className="w-full bg-gradient-to-r from-[#20B486] to-[#158064] hover:from-[#158064] hover:to-[#20B486] transition-all duration-500 text-white font-medium py-2 px-4 rounded-md shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 group"
                   disabled={isLoading}
                 >
                   {isLoading ? (
@@ -309,7 +303,7 @@ export default function SignIn() {
                 Don&apos;t have an account?{" "}
                 <a
                   href="/signup"
-                  className="text-[#7657ff] font-medium hover:underline transition-colors hover:text-[#322372]"
+                  className="text-[#20B486] font-medium hover:underline transition-colors hover:text-[#158064]"
                 >
                   Create an account
                 </a>
@@ -317,11 +311,11 @@ export default function SignIn() {
 
               <div className="text-xs text-gray-500">
                 By signing in, you agree to our{" "}
-                <a href="/terms" className="text-[#7657ff] hover:underline">
+                <a href="/terms" className="text-[#20B486] hover:underline">
                   Terms of Service
                 </a>{" "}
                 and{" "}
-                <a href="/privacy" className="text-[#7657ff] hover:underline">
+                <a href="/privacy" className="text-[#20B486] hover:underline">
                   Privacy Policy
                 </a>
               </div>
@@ -335,16 +329,16 @@ export default function SignIn() {
       </div>
 
       {/* Right side - Image with content */}
-      <div className="hidden lg:flex flex-1 relative bg-[#322372] overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#322372] via-[#7657ff]/90 to-[#322372] opacity-90"></div>
+      <div className="hidden lg:flex flex-1 relative bg-[#158064] overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-[#158064] via-[#20B486]/90 to-[#158064] opacity-90"></div>
 
         {/* Abstract shapes */}
         <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-white/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-white/5 rounded-full blur-3xl"></div>
 
         <img
-          src="https://images.pexels.com/photos/3182812/pexels-photo-3182812.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2"
-          alt="Office"
+          src="https://media.istockphoto.com/id/637250202/photo/little-boy-looking-at-books.jpg?s=612x612&w=0&k=20&c=L2aUvo_g5hxmVdbrddajZbnI46s-PXqjN3lXc6Lys8o="
+          alt="Education"
           className="absolute inset-0 w-full h-full object-cover mix-blend-overlay opacity-60"
         />
 
@@ -355,11 +349,11 @@ export default function SignIn() {
         >
           <div className="max-w-md text-center">
             <h2 className="text-5xl font-bold mb-6 leading-tight">
-              Transform Your Digital Experience
+              Unlock Your Learning Potential
             </h2>
             <p className="text-xl text-white/90 mb-8">
-              Access your account to unlock powerful tools and resources
-              designed to elevate your business.
+              Access your account to discover powerful educational resources
+              designed to help you succeed.
             </p>
 
             <div className="space-y-6 mt-12">
@@ -367,8 +361,15 @@ export default function SignIn() {
                 <div className="bg-white/20 p-2 rounded-full">
                   <CheckCircle className="h-5 w-5 text-white" />
                 </div>
+                <p className="text-left text-lg">Personalized learning paths</p>
+              </div>
+
+              <div className="flex items-center gap-3">
+                <div className="bg-white/20 p-2 rounded-full">
+                  <CheckCircle className="h-5 w-5 text-white" />
+                </div>
                 <p className="text-left text-lg">
-                  Streamlined workflow management
+                  Interactive courses and materials
                 </p>
               </div>
 
@@ -377,16 +378,7 @@ export default function SignIn() {
                   <CheckCircle className="h-5 w-5 text-white" />
                 </div>
                 <p className="text-left text-lg">
-                  Advanced analytics and reporting
-                </p>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="bg-white/20 p-2 rounded-full">
-                  <CheckCircle className="h-5 w-5 text-white" />
-                </div>
-                <p className="text-left text-lg">
-                  Seamless team collaboration tools
+                  Progress tracking and analytics
                 </p>
               </div>
             </div>

@@ -1,84 +1,195 @@
-import React from "react";
+"use client";
+
 import {
-  FileText,
-  ShoppingCart,
-  TrendingUp,
-  Box,
-  Crown,
-  GraduationCap,
+  ArrowRight,
+  LayoutGrid,
+  MonitorSmartphone,
+  LineChart,
+  Palette,
 } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
 
 export default function Feature() {
+  const [activeSlide, setActiveSlide] = useState(0);
+
   const features = [
-    {
-      icon: <FileText className="h-6 w-6 text-white" />,
-      title: "Landing pages",
-      description:
-        "Build landing pages and sales pages with no-code drag and drop builder. Gets you more conversions for your offers.",
-    },
-    {
-      icon: <ShoppingCart className="h-6 w-6 text-white" />,
-      title: "Sales funnels",
-      description:
-        "Maximise revenue from every visitor with carefully crafted sales funnels. Create and manage with our visual funnel canvas.",
-    },
-    {
-      icon: <TrendingUp className="h-6 w-6 text-white" />,
-      title: "Checkouts & Order",
-      description:
-        "Take payments on your own website with beautiful, highly customizable checkout page designs, including order bumps.",
-    },
-    {
-      icon: <Box className="h-6 w-6 text-white" />,
-      title: "Upsells & Downsells",
-      description:
-        "Increase average order values with intelligent upsells and downsell sales flows, and track conversions with funnels.",
-    },
-    {
-      icon: <Crown className="h-6 w-6 text-white" />,
-      title: "Theme Builder",
-      description:
-        "Get free SEO traffic to your offers with high impact blogs - this builds a sustainable flywheel in your business.",
-    },
-    {
-      icon: <GraduationCap className="h-6 w-6 text-white" />,
-      title: "Online Courses",
-      description:
-        "Grow recurring revenue with online courses and sites. Fully customizable to match your brand and website.",
-    },
+    [
+      {
+        icon: <LayoutGrid className="w-8 h-8" />,
+        title: "Interaction Design",
+        description:
+          "Lessons on design that cover the most recent developments.",
+        color: "bg-emerald-400",
+        textColor: "text-white",
+        iconColor: "text-white",
+      },
+      {
+        icon: <MonitorSmartphone className="w-8 h-8" />,
+        title: "UX Design Course",
+        description:
+          "Classes in development that cover the most recent advancements in web.",
+        color: "bg-white",
+        textColor: "text-gray-800",
+        iconColor: "text-blue-400",
+      },
+      {
+        icon: <LineChart className="w-8 h-8" />,
+        title: "User Interface Design",
+        description:
+          "User Interface Design courses that cover the most recent trends",
+        color: "bg-white",
+        textColor: "text-gray-800",
+        iconColor: "text-pink-400",
+      },
+    ],
+    [
+      {
+        icon: <Palette className="w-8 h-8" />,
+        title: "Visual Design",
+        description: "Learn the principles of visual design and color theory.",
+        color: "bg-emerald-400",
+        textColor: "text-white",
+        iconColor: "text-white",
+      },
+      {
+        icon: <MonitorSmartphone className="w-8 h-8" />,
+        title: "Mobile App Design",
+        description: "Create intuitive and engaging mobile app experiences.",
+        color: "bg-white",
+        textColor: "text-gray-800",
+        iconColor: "text-blue-400",
+      },
+      {
+        icon: <LineChart className="w-8 h-8" />,
+        title: "Data Visualization",
+        description:
+          "Learn to present complex data in intuitive visual formats.",
+        color: "bg-white",
+        textColor: "text-gray-800",
+        iconColor: "text-pink-400",
+      },
+    ],
+    [
+      {
+        icon: <LayoutGrid className="w-8 h-8" />,
+        title: "Design Systems",
+        description:
+          "Build scalable and consistent design systems for products.",
+        color: "bg-emerald-400",
+        textColor: "text-white",
+        iconColor: "text-white",
+      },
+      {
+        icon: <MonitorSmartphone className="w-8 h-8" />,
+        title: "Responsive Design",
+        description:
+          "Create websites that work beautifully across all devices.",
+        color: "bg-white",
+        textColor: "text-gray-800",
+        iconColor: "text-blue-400",
+      },
+      {
+        icon: <LineChart className="w-8 h-8" />,
+        title: "Design Thinking",
+        description:
+          "Apply design thinking methodology to solve complex problems.",
+        color: "bg-white",
+        textColor: "text-gray-800",
+        iconColor: "text-pink-400",
+      },
+    ],
   ];
 
-  return (
-    <section className="py-16 font-mona">
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-tertiary">
-            Much more than{" "}
-            <span className="text-[#7657ff]/80">just a page builder...</span>
-          </h2>
-          <p className="text-[#5a5a5a] text-sm font-medium w-[50%] mx-auto text-center mt-3">
-            With the OptimizeSuite, you get a complete suite of tools that
-            empower you to market your products and services the way they
-            deserve
-          </p>
-        </div>
+  const nextSlide = useCallback(() => {
+    setActiveSlide((prev) => (prev === features.length - 1 ? 0 : prev + 1));
+  }, [features.length]);
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {features.map((feature, index) => (
-            <div key={index} className="rounded-xl p-6  flex items-start gap-4">
-              <div className="bg-tertiary text-white p-3 rounded-lg shadow-xl shadow-white">
-                {feature.icon}
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2 text-occean">
-                  {feature.title}
-                </h3>
-                <p className="text-gray-600 text-xs">{feature.description}</p>
-              </div>
+  const prevSlide = useCallback(() => {
+    setActiveSlide((prev) => (prev === 0 ? features.length - 1 : prev - 1));
+  }, [features.length]);
+
+  const goToSlide = (index) => {
+    setActiveSlide(index);
+  };
+
+  // Auto-advance slides every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      nextSlide();
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [nextSlide]);
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-16">
+      <div className="text-center mb-12">
+        <p className="text-tertiary font-medium mb-2  ">Our Services</p>
+        <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mx-auto">
+          Fostering a playful & <span className="text-tertiary">engaging</span>{" "}
+          learning environment
+        </h2>
+      </div>
+
+      <div className="relative overflow-hidden">
+        <div
+          className="flex transition-transform duration-500 ease-in-out"
+          style={{ transform: `translateX(-${activeSlide * 100}%)` }}
+        >
+          {features.map((slideFeatures, slideIndex) => (
+            <div
+              key={slideIndex}
+              className="min-w-full grid grid-cols-1 md:grid-cols-3 gap-6"
+            >
+              {slideFeatures.map((feature, featureIndex) => (
+                <div
+                  key={featureIndex}
+                  className={`${feature.color} rounded-lg p-6 ${feature.textColor} shadow-sm transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1`}
+                >
+                  <div className={`mb-4 ${feature.iconColor}`}>
+                    {feature.icon}
+                  </div>
+                  <h3 className="text-xl font-semibold mb-3">
+                    {feature.title}
+                  </h3>
+                  <p
+                    className={`${
+                      feature.color === "bg-white" ? "text-gray-600" : ""
+                    } mb-4`}
+                  >
+                    {feature.description}
+                  </p>
+                  <a
+                    href="#"
+                    className={`inline-flex items-center font-medium ${
+                      feature.color === "bg-white" ? "text-emerald-500" : ""
+                    } group`}
+                  >
+                    Learn More
+                    <ArrowRight className="ml-1 w-4 h-4 transform transition-transform duration-300 group-hover:translate-x-1" />
+                  </a>
+                </div>
+              ))}
             </div>
           ))}
         </div>
       </div>
-    </section>
+
+      {/* Pagination Dots */}
+      <div className="flex justify-center mt-8 space-x-2">
+        {features.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => goToSlide(index)}
+            className={`transition-all duration-300 rounded-full ${
+              activeSlide === index
+                ? "w-8 h-2 bg-emerald-400"
+                : "w-2 h-2 bg-gray-300 hover:bg-gray-400"
+            }`}
+            aria-label={`Go to slide ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
   );
 }

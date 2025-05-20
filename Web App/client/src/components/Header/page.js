@@ -22,7 +22,7 @@ export default function Header() {
         <SheetContent side="left" className="bg-white">
           <Link href="#" prefetch={false}>
             <Image
-              src="/images/Group.png"
+              src="/images/Group.jpg"
               width={260}
               height={200}
               alt="logo"
@@ -64,7 +64,7 @@ export default function Header() {
       </Sheet>
       <div>
         <Link href="#" className="mr-6 hidden lg:flex  mt-1" prefetch={false}>
-          <Image src="/images/Group.png" width={40} height={40} alt="logo" />
+          <Image src="/images/Group.jpg" width={40} height={40} alt="logo" />
           <span className="sr-only">Company Logo</span>
         </Link>
       </div>
@@ -76,7 +76,7 @@ export default function Header() {
                 href="#benefits"
                 className="group inline-flex h-9 w-max items-center justify-center   
                 px-4 py-2 text-md 2xl:text-2xl font-medium transition-all 
-                text-foreground/70 hover:shadow-[0_4px_2px_-2px_rgba(114,79,239,255)]
+                text-foreground/70    hover:shadow-[0_4px_2px_-2px_rgba(0,128,0,0.8)]
    
    
                 duration-300"
@@ -90,7 +90,7 @@ export default function Header() {
                 href="#feature"
                 className="group inline-flex h-9 w-max items-center justify-center   
              px-4 py-2 text-md 2xl:text-2xl font-medium transition-all 
-             text-foreground/70 hover:shadow-[0_4px_2px_-2px_rgba(114,79,239,255)]
+             text-foreground/70 hover:shadow-[0_4px_2px_-2px_rgba(0,128,0,0.8)]
 
 
              duration-300"
@@ -104,7 +104,7 @@ export default function Header() {
                 href="#works"
                 className="group inline-flex h-9 w-max items-center justify-center   
              px-4 py-2 text-md 2xl:text-2xl font-medium transition-all 
-             text-foreground/70 hover:shadow-[0_4px_2px_-2px_rgba(114,79,239,255)]
+             text-foreground/70 hover:shadow-[0_4px_2px_-2px_rgba(0,128,0,0.8)]
 
 
              duration-300"
@@ -118,7 +118,7 @@ export default function Header() {
                 href="#works"
                 className="group inline-flex h-9 w-max items-center justify-center   
              px-4 py-2 text-md 2xl:text-2xl font-medium transition-all 
-             text-foreground/70 hover:shadow-[0_4px_2px_-2px_rgba(114,79,239,255)]
+             text-foreground/70  hover:shadow-[0_4px_2px_-2px_rgba(0,128,0,0.8)]
 
 
              duration-300"
@@ -133,7 +133,7 @@ export default function Header() {
       <div>
         <Link
           href="/signin"
-          className="bg-[#7657ff]  text-[0.9rem] px-5 py-2 text-white round-lg font-medium 2xl:px-8 2xl:py-4"
+          className="bg-tertiary  text-[0.9rem] px-5 py-2 text-white rounded-sm font-medium 2xl:px-8 2xl:py-4"
         >
           Get Started
         </Link>
