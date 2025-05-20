@@ -37,7 +37,12 @@ const LoginScreen = () => {
   }, []);
   return (
     <View className="flex flex-1">
-      <BoardingTops />
+      {/*<BoardingTops />*/}
+      <Image
+          className={`content-center items-center self-center ${keyboardVisible?'mt-6':'mt-24'} rounded-full`}
+          source={require("@/assets/images/adaptive-icon.png")}
+          style={{ height: 150, width: 150 }}
+      />
       <LoginForm setKeyboardOpen={setKeyboardVisible} />
       {/*{!keyboardVisible && (*/}
       {/*  <Image*/}

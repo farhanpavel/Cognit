@@ -75,10 +75,10 @@ export const theme = {
     isV3: true
   }),
   colors: {
-    primary: "#E81046",
-    secondary: "#FF0E5A",
-    tertiary: "#AC002B",
-    outlineVariant: "#E81046",
+    primary: "#20B486",
+    secondary: "#1C9777",
+    tertiary: "#17A97B",
+    outlineVariant: "#A8E2D0",
     textInvert: "#FFFAFA",
     surface: "#FFFFFFD7",
     backdrop: "#FFFFFFD7",
