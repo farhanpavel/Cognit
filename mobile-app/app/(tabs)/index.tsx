@@ -2,6 +2,8 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import { Button, Text, useTheme } from "react-native-paper";
 import { ScrollView, StatusBar } from "react-native";
+import CustomButton from "@/components/ui/button";
+import React from "react";
 
 export default function HomeScreen() {
   const router = useRouter();
@@ -34,6 +36,12 @@ export default function HomeScreen() {
       >
         Logout
       </Button>
+
+      <CustomButton
+          onPress={()=>router.push('/physics-sim')}
+      >
+        Physics Simulation
+      </CustomButton>
     </ScrollView>
   );
 }
