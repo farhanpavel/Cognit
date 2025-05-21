@@ -59,7 +59,7 @@
     "expo-system-ui": "~3.0.7",
     "expo-web-browser": "~13.0.3",
     "lucide-react-native": "0.439.0",
-    "@types/matter-js": "^0.19.8",
+    "@matter.js/react-native": "^0.11.0-alpha.0-20240919-89f6a6e7",
     "nativewind": "^2.0.11",
     "react": "18.2.0",
     "react-dom": "18.2.0",
