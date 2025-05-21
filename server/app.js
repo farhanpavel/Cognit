@@ -2,6 +2,7 @@ import express from "express";
 import "dotenv/config";
 import cors from "cors";
 import userRouter from "./routes/userRouter.js";
+import researchRouter from "./routes/researchRouter.js";
 
 const app = express();
 app.use(cors());
@@ -18,3 +19,4 @@ app.listen(PORT, "0.0.0.0", () => {
 
 app.use("/api/user", userRouter);
 
+app.use("/api/research", researchRouter);

@@ -8,17 +8,47 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  email     String   @unique
-  password  String
-  name      String
-  role      Role     @default(STUDENT) // student, admin, chef, busDriver
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  name        String
+  role        Role     @default(STUDENT)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  institution String?
+  phone       String?
+  bio         String?
+  avatar      String?
+
+  // Relations
+
+  createdMeetings Meeting[] @relation("MeetingCreator")
 }
 
 enum Role {
   STUDENT
   RESEARCHER
   TEACHER
+}
+
+model Meeting {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  meetingLink String?
+  meetingDate DateTime
+  duration    Int
+  agenda      String?
+  formLink    String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  creator     User     @relation("MeetingCreator", fields: [creatorId], references: [id])
+  creatorId   String
+  schedule    Schedule @default(UPCOMING)
+}
+
+enum Schedule {
+  UPCOMING
+  CANCEL
+  COMPLETE
 }

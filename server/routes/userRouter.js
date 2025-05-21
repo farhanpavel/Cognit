@@ -9,7 +9,7 @@ import {
   userRegister,
 } from "../controllers/userController.js";
 import express from "express";
-import {jwtAuthentication} from "../middlewares/authMiddleware.js";
+import { jwtAuthentication } from "../middlewares/authMiddleware.js";
 
 const userRouter = express.Router();
 userRouter.get("/", getUser);
@@ -22,6 +22,6 @@ userRouter.post("/create-notification", makeNotification);
 userRouter.post("/login", userLogin);
 userRouter.post("/register", userRegister);
 userRouter.post("/refresh", userLogin);
-userRouter.get("/profile", jwtAuthentication,getUser);
+userRouter.get("/profile", jwtAuthentication, getUser);
 
 export default userRouter;

@@ -22,6 +22,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useRouter } from "next/navigation";
+import { url } from "@/components/Url/page";
 
 export default function Signup() {
   const [showPassword, setShowPassword] = useState(false);
@@ -59,7 +60,7 @@ export default function Signup() {
 
     try {
       // Replace with your actual API endpoint
-      const response = await fetch(`/api/user/register`, {
+      const response = await fetch(`${url}/api/user/register`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -68,7 +69,7 @@ export default function Signup() {
           name: fullName,
           email,
           password,
-          role: "student",
+          role: "RESEARCHER",
         }),
       });
 

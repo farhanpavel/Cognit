@@ -15,6 +15,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  AlarmClock,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -28,20 +29,14 @@ import {
 } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
-export default function UserSidebar() {
+export default function Residebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeItem, setActiveItem] = useState("dashboard");
 
   const menuItems = [
     { id: "overview", label: "Overview", icon: Home },
-    { id: "profile", label: "My Profile", icon: User },
-    { id: "billing", label: "Billing", icon: CreditCard },
-    { id: "notifications", label: "Notifications", icon: Bell, badge: 5 },
-    { id: "documents", label: "Documents", icon: FileText },
-    { id: "settings", label: "Settings", icon: Settings },
-    { id: "help", label: "Help & Support", icon: HelpCircle },
+    { id: "schedule", label: "Schedule", icon: AlarmClock },
   ];
-
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
   };
@@ -76,13 +71,13 @@ export default function UserSidebar() {
           className="flex items-center justify-center gap-3"
           variants={labelVariants}
         >
-          <img src="/images/Group.png" alt="Logo" className="h-8" />
+          <img src="/images/Group.jpg" alt="Logo" className="h-8" />
         </motion.div>
         <Button
           variant="ghost"
           size="icon"
           onClick={toggleSidebar}
-          className="text-gray-500 hover:text-[#7657ff] hover:bg-[#7657ff]/10"
+          className="text-gray-500 hover:text-tertiary hover:bg-[#7657ff]/10"
         >
           {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </Button>
@@ -100,11 +95,11 @@ export default function UserSidebar() {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Link
-                    href={`/userdashboard/${item.id}`}
+                    href={`/researchdashboard/${item.id}`}
                     onClick={() => setActiveItem(item.id)}
                     className={`flex items-center gap-3 px-3 py-2.5 rounded-md group relative ${
                       activeItem === item.id
-                        ? "bg-[#7657ff]/10 text-[#7657ff]"
+                        ? "bg-tertiary/10 text-tertiary"
                         : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                     }`}
                   >
@@ -116,7 +111,7 @@ export default function UserSidebar() {
                       <item.icon
                         size={20}
                         className={
-                          activeItem === item.id ? "text-[#7657ff]" : ""
+                          activeItem === item.id ? "text-tertiary" : ""
                         }
                       />
                     </motion.div>
@@ -130,7 +125,7 @@ export default function UserSidebar() {
 
                     {item.badge && (
                       <motion.div variants={labelVariants}>
-                        <Badge className="bg-[#7657ff] hover:bg-[#7657ff]/90">
+                        <Badge className="bg-tertiary hover:bg-tertiary/90">
                           {item.badge}
                         </Badge>
                       </motion.div>
@@ -138,7 +133,7 @@ export default function UserSidebar() {
 
                     {activeItem === item.id && (
                       <motion.div
-                        className="absolute left-0 top-0 bottom-0 w-1 bg-[#7657ff] rounded-r-md"
+                        className="absolute left-0 top-0 bottom-0 w-1 bg-tertiary rounded-r-md"
                         layoutId="activeIndicator"
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
