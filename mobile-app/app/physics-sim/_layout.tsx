@@ -1,89 +1,110 @@
-import React from 'react';
-import { View, StyleSheet } from 'react-native';
-import { GameEngine } from 'react-native-game-engine';
-import Matter from "matter-js";
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Text, StyleSheet, Dimensions } from 'react-native';
 
-type EntityProps = {
-    body: Matter.Body;
-    color: string;
-    renderer: (props: any) => JSX.Element;
-};
-
-const Ball = (props: EntityProps) => {
-    const { body, color } = props;
-    const radius = 20;
-
-    return (
-        <View
-            style={{
-                position: 'absolute',
-                left: body.position.x - radius,
-                top: body.position.y - radius,
-                width: radius * 2,
-                height: radius * 2,
-                borderRadius: radius,
-                backgroundColor: color,
-            }}
-        />
-    );
-};
-
-const Physics = (entities: any, { time }: any) => {
-    const engine: Matter.Engine = entities.physics.engine;
-    Matter.Engine.update(engine, time.delta);
-    return entities;
-};
+// Physics constants
+const PIXELS_PER_METER = 10;
+const UPDATE_INTERVAL_MS = 30; // ~33 FPS
+const A_CAR_VELOCITY = 20; // pixels per second (constant)
+const B_CAR_ACCELERATION = 10; // pixels per second squared
+const screenHeight = Dimensions.get('window').height;
 
 export default function App() {
-    const engine = Matter.Engine.create({ enableSleeping: false });
-    const world = engine.world;
+  const [carAPosition, setCarAPosition] = useState(50);
+  const [carBPosition, setCarBPosition] = useState(50);
+  const [carASpeed, setCarASpeed] = useState(0);
+  const [carBSpeed, setCarBSpeed] = useState(0);
+  const [simulationEnded, setSimulationEnded] = useState(false);
 
-    const ball = Matter.Bodies.circle(100, 100, 20, { restitution: 0.8 });
-    const floor = Matter.Bodies.rectangle(200, 600, 400, 40, {
-        isStatic: true,
-    });
+  // Physics state
+  const carAVelocity = useRef(A_CAR_VELOCITY); // pixels per second (constant)
+  const carBVelocity = useRef(0);    // starts at 0
+  const carBAcceleration = useRef(B_CAR_ACCELERATION);      // pixels per second squared
 
-    Matter.World.add(world, [ball, floor]);
+  const lastUpdateTime = useRef(Date.now());
+  const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
 
-    // Apply initial velocity and acceleration (via force)
-    Matter.Body.setVelocity(ball, { x: 2, y: -10 }); // Initial velocity
-    Matter.Body.applyForce(ball, ball.position, { x: 0.002, y: 0 }); // Simulate acceleration
+  useEffect(() => {
+    gameLoopRef.current = setInterval(() => {
+      const now = Date.now();
+      const deltaTime = (now - lastUpdateTime.current) / 1000; // in seconds
+      lastUpdateTime.current = now;
 
-    return (
-        <GameEngine
-            systems={[Physics]}
-            entities={{
-                physics: { engine, world },
-                ball: {
-                    body: ball,
-                    color: 'tomato',
-                    renderer: Ball,
-                },
-                floor: {
-                    body: floor,
-                    color: 'black',
-                    renderer: (props: any) => (
-                        <View
-                            style={{
-                                position: 'absolute',
-                                left: props.body.position.x - 200,
-                                top: props.body.position.y - 20,
-                                width: 400,
-                                height: 40,
-                                backgroundColor: 'black',
-                            }}
-                        />
-                    ),
-                },
-            }}
-            style={styles.container}
-        />
-    );
+      // Update Car A (constant velocity)
+      const newCarAPos = carAPosition + carAVelocity.current * deltaTime;
+      const newCarASpeed = carAVelocity.current / PIXELS_PER_METER;
+
+      // Update Car B (accelerating)
+      carBVelocity.current += carBAcceleration * deltaTime;
+      const newCarBPos = carBPosition + carBVelocity.current * deltaTime;
+      const newCarBSpeed = carBVelocity.current / PIXELS_PER_METER;
+
+      setCarAPosition(newCarAPos);
+      setCarASpeed(newCarASpeed);
+
+      setCarBPosition(newCarBPos);
+      setCarBSpeed(newCarBSpeed);
+
+      // End simulation if both cars are off-screen
+      if (newCarAPos > screenHeight && newCarBPos > screenHeight) {
+        clearInterval(gameLoopRef.current);
+        setSimulationEnded(true);
+      }
+    }, UPDATE_INTERVAL_MS);
+
+    return () => clearInterval(gameLoopRef.current);
+  }, [carAPosition, carBPosition]);
+
+  return (
+    <View style={styles.container}>
+      <Text style={styles.speedText}>🚗 Car A (Constant): {carASpeed.toFixed(2)} m/s</Text>
+      <Text style={styles.speedText}>🏎️ Car B (Accelerating): {carBSpeed.toFixed(2)} m/s</Text>
+      {simulationEnded && <Text style={styles.endedText}>🏁 Simulation Ended</Text>}
+
+      <View style={styles.track}>
+        {/* Car A (blue) */}
+        <View style={[styles.car, styles.carA, { left: 200, top: carAPosition }]} />
+        
+        {/* Car B (red) */}
+        <View style={[styles.car, styles.carB, { left: 300, top: carBPosition }]} />
+      </View>
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#fff',
-    },
+  container: {
+    flex: 1,
+    paddingTop: 60,
+    backgroundColor: '#f5f5f5',
+  },
+  track: {
+    flex: 1,
+    backgroundColor: '#e0e0e0',
+    marginTop: 20,
+  },
+  car: {
+    position: 'absolute',
+    width: 30,
+    height: 60,
+    borderRadius: 6,
+  },
+  carA: {
+    backgroundColor: 'blue',
+  },
+  carB: {
+    backgroundColor: 'red',
+  },
+  speedText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginLeft: 20,
+    marginBottom: 4,
+  },
+  endedText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: 'green',
+    marginLeft: 20,
+    marginTop: 10,
+  },
 });
