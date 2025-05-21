@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
-i
+import Matter from 'matter-js';
 import { GameEngine } from 'react-native-game-engine';
 
 type EntityProps = {
