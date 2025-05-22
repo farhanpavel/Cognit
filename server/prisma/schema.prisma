@@ -20,8 +20,6 @@ model User {
   bio         String?
   avatar      String?
 
-  // Relations
-
   createdMeetings Meeting[] @relation("MeetingCreator")
 
   meeting Meeting[] @relation("MeetingDataCollector")

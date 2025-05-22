@@ -1,9 +1,15 @@
 import prisma from "../db.js";
 import admin from "firebase-admin";
 import "dotenv/config";
-
+import { sendNotification, sendNotificationWData } from "./userController.js";
 export const getMeeting = async (req, res) => {
-  const meeting = await prisma.meeting.findMany({});
+  const userId = req.user.id;
+  console.log(userId);
+  const meeting = await prisma.meeting.findMany({
+    where: {
+      creatorId: userId,
+    },
+  });
   res.status(201).json(meeting);
 };
 
@@ -32,7 +38,7 @@ export const createMeeting = async (req, res) => {
       formLink,
     } = req.body;
     const userId = req.user.id;
-
+    console.log(userId);
     const meeting = await prisma.meeting.create({
       data: {
         title,
@@ -45,7 +51,18 @@ export const createMeeting = async (req, res) => {
         creatorId: userId,
       },
     });
-
+    sendNotification(
+      {
+        title: title,
+        body: description,
+      },
+      "research",
+      {
+        meetUrl: meetingLink,
+        formUrl: formLink,
+      },
+      "https://cognit.vercel.app"
+    );
     res.status(201).json(meeting);
   } catch (error) {
     console.error("Error creating meeting:", error);
@@ -63,9 +80,9 @@ export const getResearches = async (req, res) => {
       _count: {
         select: {
           dataCollectors: true,
-        }
-      }
-    }
+        },
+      },
+    },
   });
   res.status(200).json(researchData);
 };
@@ -100,6 +117,3 @@ export const enrollResearch = async (req, res) => {
     res.status(500).json({ message: "Failed to enroll in research" });
   }
 };
-
-
-
