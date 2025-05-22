@@ -23,11 +23,12 @@ import {
   ChevronRight,
   Mic
 } from "lucide-react-native";
-import { Audio } from "expo-av";
-import * as Haptics from "expo-haptics";
-import { Accelerometer } from "expo-sensors";
-import * as Speech from "expo-speech";
-import axios from "axios";
+import { Audio } from 'expo-av';
+import * as Haptics from 'expo-haptics';
+import { Accelerometer } from 'expo-sensors';
+import * as Speech from 'expo-speech';
+import axios from 'axios';
+import { useGetMyProfileMutation } from "@/modules/profile/api/profile.api";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -36,46 +37,45 @@ export default function HomeScreen() {
   const [userName, setUserName] = useState("Alex");
   const [isListening, setIsListening] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
-  const [recordingTimeout, setRecordingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [getProfile,{data:profileData,isLoading}] = useGetMyProfileMutation();
 
+  useEffect(() => {
+    if (profileData) {
+      if (profileData.name) {
+        const words = profileData.name.trim().split(' ');
+        setUserName(words.slice(0, 2).join(' '));
+      }
+    }
+  }, [profileData]);
 
-  const [isRecording, setIsRecording] = useState(false);
+  // Fetch user profile on mount
+  useEffect(() => {
+    getProfile(null);
+  },[])
+
   // Load user name from storage
   useEffect(() => {
     const loadUserName = async () => {
       try {
-        const name = await AsyncStorage.getItem("userName");
+        const name = await AsyncStorage.getItem('userName');
         if (name) setUserName(name);
       } catch (error) {
-        console.error("Error loading user name:", error);
+        console.error('Error loading user name:', error);
       }
     };
     loadUserName();
   }, []);
 
+  // Setup shake detection
   useEffect(() => {
-  let lastShake = 0;
-  let subscription: any = null;
-  
-  const subscribe = async () => {
-    subscription = Accelerometer.addListener(({ x, y, z }) => {
-      const acceleration = Math.sqrt(x * x + y * y + z * z);
-      const now = Date.now();
-      
-      if (acceleration > 1.5 && now - lastShake > 2000) {
-        lastShake = now;
-        handleShake();
-      }
-    });
-  };
     let lastShake = 0;
     let subscription: any = null;
-
+    
     const subscribe = async () => {
       subscription = Accelerometer.addListener(({ x, y, z }) => {
         const acceleration = Math.sqrt(x * x + y * y + z * z);
         const now = Date.now();
-
+        
         if (acceleration > 1.5 && now - lastShake > 2000) {
           lastShake = now;
           handleShake();
@@ -83,11 +83,10 @@ export default function HomeScreen() {
       });
     };
 
-  subscribe();
-  return () => {
-    if (subscription) subscription.remove();
-    if (recordingTimeout) clearTimeout(recordingTimeout);
-  };
+    subscribe();
+    return () => {
+      if (subscription) subscription.remove();
+    };
   }, []);
 
   const handleShake = async () => {
@@ -95,236 +94,136 @@ export default function HomeScreen() {
     startVoiceCommand();
   };
 
-  // Updated startVoiceCommand function
-const startVoiceCommand = async () => {
-  if (isListening) return;
-
-  try {
-    setIsListening(true);
-    
-    // Cancel any pending timeout
-    if (recordingTimeout) {
-      clearTimeout(recordingTimeout);
-      setRecordingTimeout(null);
-    }
-
-    // Stop any existing recording
-    if (recording) {
-      await stopRecording(recording);
-    }
-
-    // Speak immediately about the features
-    await speak(`Hi ${userName}, welcome to Cognit. You can say "Study", "Research", or "Download". Which one would you like?`);
   const startVoiceCommand = async () => {
     try {
       setIsListening(true);
-
+      
       // Speak immediately about the features
-      speak(
-        `Hi ${userName}, welcome to Cognit. You can say "Study", "Research", or "Download". Which one would you like?`
-      );
+      speak(`Hi ${userName}, welcome to Cognit. You can say "Study", "Research", or "Download". Which one would you like?`);
 
-    // Request permissions and set audio mode
-    await Audio.requestPermissionsAsync();
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: true,
-      playsInSilentModeIOS: true,
-    });
       // Start recording
       await Audio.requestPermissionsAsync();
       await Audio.setAudioModeAsync({
         allowsRecordingIOS: true,
-        playsInSilentModeIOS: true
+        playsInSilentModeIOS: true,
       });
 
-    // Start a new recording
-    setTimeout(async () => {
       const { recording: newRecording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
-      await console.log('Recording started');
-      await setTimeout(() => {
-      console.log("Stopping")
-      stopRecording(newRecording);
-    }, 5000);
-    }, 6000);
+      setRecording(newRecording);
 
-    // Set timeout to stop recording after 5 seconds
-
-    //setRecordingTimeout(timeout);
-
-  } catch (error) {
-    console.error('Failed to start recording', error);
-    setIsListening(false);
-    setRecording(null);
-  } finally {
-    setIsListening(false);
-  }
-};
       // Stop after 5 seconds
       setTimeout(stopRecording, 5000);
+
     } catch (error) {
-      console.error("Failed to start recording", error);
+      console.error('Failed to start recording', error);
       setIsListening(false);
     }
   };
 
-const stopRecording = async (recording: Audio.Recording | null) => {
-  console.log("Stop function triggered")
-  try {
-    if (!recording) {
-      console.log("Recording is null");
-      return;
-    }
-    
-    await recording.stopAndUnloadAsync();
-    await Audio.setAudioModeAsync({
-      allowsRecordingIOS: false,
-    });
   const stopRecording = async () => {
     try {
       if (!recording) return;
-
+      
       await recording.stopAndUnloadAsync();
       await Audio.setAudioModeAsync({
-        allowsRecordingIOS: false
+        allowsRecordingIOS: false,
       });
 
-    const uri = recording.getURI();
-    console.log(uri);
-    if (uri) {
-      await processVoiceCommand(uri);
-      //play sound
-      //  const { sound } = await Audio.Sound.createAsync({ uri });
-      //  await sound.playAsync();
-    }
+      const uri = recording.getURI();
+      if (uri) {
+        await processVoiceCommand(uri);
+      }
 
-    setRecording(null);
-    setIsListening(false);
-    
-    // Clear the timeout
-    if (recordingTimeout) {
-      clearTimeout(recordingTimeout);
-      setRecordingTimeout(null);
-    }
-  } catch (error) {
-    console.error('Failed to stop recording', error);
-    setIsListening(false);
-    setRecording(null);
-  }
-};
-// Add this cleanup function to handle component unmount
-useEffect(() => {
-  return () => {
-    if (recording) {
-      recording.stopAndUnloadAsync();
-    }
-    if (recordingTimeout) {
-      clearTimeout(recordingTimeout);
       setRecording(null);
       setIsListening(false);
     } catch (error) {
-      console.error("Failed to stop recording", error);
+      console.error('Failed to stop recording', error);
       setIsListening(false);
     }
   };
-}, [recording, recordingTimeout]);
 
   const processVoiceCommand = async (audioUri: string) => {
     try {
-      console.warn("Processing voice command..."); // Debug log
       // Read the audio file as base64
       const response = await fetch(audioUri);
       const blob = await response.blob();
       const reader = new FileReader();
-
+      
       reader.onloadend = async () => {
-        const base64data = reader.result?.toString().split(",")[1];
+        const base64data = reader.result?.toString().split(',')[1];
         if (!base64data) {
           speak("Sorry, I couldn't process the audio. Please try again.");
           return;
         }
 
         try {
-          console.warn("Sending audio to API..."); // Debug log
           // Send to Google Cloud Speech-to-Text API
           const apiResponse = await axios.post(
-            `https://speech.googleapis.com/v1/speech:recognize?key=AIzaSyBwEpoyI_eqDJP8du449xO-8bjd44Ki3rc`,
+            `https://speech.googleapis.com/v1/speech:recognize?key=`,
             {
               config: {
-                encoding: "LINEAR16",
+                encoding: 'LINEAR16',
                 sampleRateHertz: 16000,
-                languageCode: "en-US"
+                languageCode: 'en-US',
               },
               audio: {
-                content: base64data
-              }
+                content: base64data,
+              },
             }
           );
 
           console.warn("API Response:", apiResponse.data); // Debug log
 
-          const transcription =
-            apiResponse.data.results?.[0]?.alternatives?.[0]?.transcript;
+          const transcription = apiResponse.data.results?.[0]?.alternatives?.[0]?.transcript;
           if (transcription) {
             console.warn("Transcription:", transcription); // Debug log
             handleVoiceCommand(transcription.toLowerCase());
           } else {
-            speak(
-              "I didn't catch that. Please shake your device to try again."
-            );
+            speak("I didn't catch that. Please shake your device to try again.");
           }
         } catch (apiError) {
-          console.error("API Error:", apiError);
-          speak(
-            "Sorry, there was an error processing your request. Please try again."
-          );
+          console.error('API Error:', apiError);
+          speak("Sorry, there was an error processing your request. Please try again.");
         }
       };
-
+      
       reader.readAsDataURL(blob);
     } catch (error) {
-      console.error("Error processing voice command:", error);
-      speak(
-        "Sorry, I encountered an error. Please shake your device to try again."
-      );
+      console.error('Error processing voice command:', error);
+      speak("Sorry, I encountered an error. Please shake your device to try again.");
     }
   };
 
   const handleVoiceCommand = (command: string) => {
     console.warn("Processing command:", command); // Debug log
     
-    if (command.toLocaleLowerCase().includes('study')) {
-
-    if (command.includes("study")) {
+    if (command.includes('study')) {
       speak("Taking you to the Study section.");
       setTimeout(() => {
         router.push("/menu");
       }, 1500);
-    } else if (command.toLocaleLowerCase().includes('research')) {
-    } else if (command.includes("research")) {
+    } else if (command.includes('research')) {
       speak("Taking you to the Research section.");
       setTimeout(() => {
         router.push("/research");
       }, 1500);
-    } else if (command.toLocaleLowerCase().includes('download')) {
-    } else if (command.includes("download")) {
+    } else if (command.includes('download')) {
       speak("Taking you to the Download section.");
       setTimeout(() => {
         router.push("/download");
       }, 1500);
     } else {
-      speak(
-        "I didn't understand that. Please say Study, Research, or Download."
-      );
+      speak("I didn't understand that. Please say Study, Research, or Download.");
     }
   };
 
   const speak = (text: string) => {
     Speech.speak(text, {
-      language: "en",
+      language: 'en',
       pitch: 1.0,
-      rate: 1.0
+      rate: 1.0,
     });
   };
 
@@ -400,12 +299,9 @@ useEffect(() => {
             </Text>
           </View>
           <View style={styles.headerButtons}>
-            <TouchableOpacity
-              style={styles.iconButton}
-              onPress={() => {
-                router.push("/notifications");
-              }}
-            >
+            <TouchableOpacity style={styles.iconButton} onPress={()=>{
+              router.push("/notifications");
+            }}>
               <Bell size={20} color="#fff" strokeWidth={2} />
             </TouchableOpacity>
             <TouchableOpacity
@@ -710,15 +606,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#20B486",
     padding: 10,
     borderRadius: 20,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
     marginHorizontal: 20,
     marginTop: 10
   },
   listeningText: {
-    color: "white",
+    color: 'white',
     marginLeft: 10,
-    fontWeight: "bold"
+    fontWeight: 'bold'
   }
 });

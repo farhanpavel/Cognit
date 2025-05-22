@@ -17,6 +17,7 @@
     "preset": "jest-expo"
   },
   "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.0.1",
     "@expo/vector-icons": "^14.0.2",
     "@formatjs/intl-datetimeformat": "^6.12.5",
     "@formatjs/intl-displaynames": "^6.6.8",
