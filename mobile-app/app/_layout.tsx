@@ -250,6 +250,7 @@ export default function RootLayout() {
           <Stack.Screen name="game" options={{ headerShown: false }} />
           <Stack.Screen name="human" options={{ headerShown: false }} />
           <Stack.Screen name="menu" options={{ headerShown: false }} />
+          <Stack.Screen name="notifications" options={{ headerShown: false }} />
 
           <Stack.Screen name="+not-found" />
         </Stack>

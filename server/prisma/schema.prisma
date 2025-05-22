@@ -47,6 +47,18 @@ model Meeting {
   schedule    Schedule @default(UPCOMING)
 }
 
+model Notification {
+  id        String   @id @default(uuid())
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  topic     String
+  formLink  String?
+  meetLink  String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 enum Schedule {
   UPCOMING
   CANCEL
