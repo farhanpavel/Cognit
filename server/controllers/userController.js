@@ -333,6 +333,16 @@ export const sendNotification = async (
     .catch((error) => {
       console.error("Error sending data message:", error);
     });
+
+    await prisma.notification.create({
+    data: {
+      title: notification.title,
+      message: notification.body,
+      topic: topic,
+      meetLink: data.meetUrl ? data.meetUrl : "",
+      formLink: data.formUrl ? data.formUrl : "",
+    },
+  });
 };
 
 export const sendNotificationWData = async (req, res) => {
@@ -345,15 +355,7 @@ export const sendNotificationWData = async (req, res) => {
   sendNotification(notification, topic, data, "https://bidyarthi.vercel.app");
   console.log(data);
   //save to db
-  await prisma.notification.create({
-    data: {
-      title: title,
-      message: body,
-      topic: topic,
-      meetLink: data.meetUrl ? data.meetUrl : "",
-      formLink: data.formUrl ? data.formUrl : "",
-    },
-  });
+  
   res.status(200).json({ message: "Notification sent successfully" });
 };
 

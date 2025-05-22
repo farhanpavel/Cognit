@@ -6,6 +6,8 @@ import {
   updateMeeting,
   getResearches,
   enrollResearch,
+  getResearchById,
+  getMyEndrollments,
 } from "../controllers/researchController.js";
 
 const researchRouter = express.Router();
@@ -18,5 +20,7 @@ researchRouter.put("/meetings", jwtAuthentication, updateMeeting);
 researchRouter.get("/", getMeeting);
 researchRouter.get("/get/all", getResearches);
 researchRouter.get("/enroll/:id", jwtAuthentication, enrollResearch);
+researchRouter.get("/get/:id", jwtAuthentication, getResearchById);
+researchRouter.get("/get/myendrollments/all", jwtAuthentication, getMyEndrollments);
 
 export default researchRouter;
