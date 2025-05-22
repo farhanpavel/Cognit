@@ -14,11 +14,6 @@ const Chemistry = () => {
   const [infoExpanded, setInfoExpanded] = useState(true);
   const [controlExpanded, setControlExpanded] = useState(false);
 
-  const insets = useSafeAreaInsets();
-  useEffect(() => {
-    statusBarHeight = insets.top;
-  }, [insets]);
-
   const htmlContent = `
 <!DOCTYPE html>
 <html>

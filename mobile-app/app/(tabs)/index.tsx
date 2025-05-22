@@ -101,7 +101,9 @@ export default function HomeScreen() {
             </Text>
           </View>
           <View style={styles.headerButtons}>
-            <TouchableOpacity style={styles.iconButton}>
+            <TouchableOpacity style={styles.iconButton} onPress={()=>{
+              router.push("/notifications");
+            }}>
               <Bell size={20} color="#fff" strokeWidth={2} />
             </TouchableOpacity>
             <TouchableOpacity

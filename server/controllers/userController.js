@@ -343,3 +343,34 @@ export const sendNotification = async (
       console.error("Error sending data message:", error);
     });
 };
+
+export const sendNotificationWData = async (req, res) => {
+  const { title, body, topic, data } = req.body;
+  const notification = {
+    title: title,
+    body: body,
+  };
+
+  sendNotification(notification, topic, data, "https://bidyarthi.vercel.app");
+  console.log(data);
+  //save to db
+  await prisma.notification.create({
+    data: {
+      title: title,
+      message: body,
+      topic: topic,
+      meetLink: data.meetUrl ? data.meetUrl : "",
+      formLink: data.formUrl ? data.formUrl : "",
+    },
+  });
+  res.status(200).json({ message: "Notification sent successfully" });
+};
+
+export const getNotifications = async (req, res) => {
+  const notifications = await prisma.notification.findMany({
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+  res.status(200).json(notifications);
+}
