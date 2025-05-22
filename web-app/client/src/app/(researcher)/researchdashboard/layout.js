@@ -1,9 +1,9 @@
-import UserSidebar from "@/components/UserSidebar/page";
+import Residebar from "@/components/ResearchSidebar/page";
 
 export default function Landing({ children }) {
   return (
     <div className="bg-[#F8F9FA] flex">
-      <UserSidebar />
+      <Residebar />
       <div className="w-[90%]">{children}</div>
     </div>
   );

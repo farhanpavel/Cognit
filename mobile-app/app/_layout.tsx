@@ -14,7 +14,7 @@ import { useGetMyProfileMutation } from "@/modules/profile/api/profile.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loading from "@/components/ui/loading";
 
-SplashScreen.preventAutoHideAsync().then((r) =>  {
+SplashScreen.preventAutoHideAsync().then((r) => {
   console.log("Root layout rendering");
 });
 let pendingRoute = "";
@@ -35,7 +35,6 @@ async function registerForPushNotificationsAsync() {
 }
 
 export default function RootLayout() {
-
   const router = useRouter();
   const lastNotificationResponse = Notifications.useLastNotificationResponse();
   const [loaded] = useFonts({
@@ -106,33 +105,32 @@ export default function RootLayout() {
     console.log(data, error);
   }, [data, error]);
 
- useEffect(() => {
-  console.log(profileData, profileError);
-  if (loaded && (profileData || profileError)) {
-    console.log(pendingRoute);
-    if (profileData) {
-      AsyncStorage.setItem("userId", profileData.id).then(() => {
-        console.log("User id set");
-      });
-      SplashScreen.hideAsync().then((r) => console.log(r));
-      if (pendingRoute) {
-        router.push(pendingRoute as Href<string | object>);
+  useEffect(() => {
+    console.log(profileData, profileError);
+    if (loaded && (profileData || profileError)) {
+      console.log(pendingRoute);
+      if (profileData) {
+        AsyncStorage.setItem("userId", profileData.id).then(() => {
+          console.log("User id set");
+        });
+        SplashScreen.hideAsync().then((r) => console.log(r));
+        if (pendingRoute) {
+          router.push(pendingRoute as Href<string | object>);
+        } else {
+          router.push("/(tabs)");
+        }
       } else {
-        router.push("/(tabs)");
+        SplashScreen.hideAsync().then((r) => console.log(r));
+        router.push("/login");
       }
     } else {
-      SplashScreen.hideAsync().then((r) => console.log(r));
-      router.push("/login");
+      console.log("Not loaded");
     }
-  } else {
-    console.log("Not loaded");
-  }
-}, [profileData, profileError, loaded]);
-
+  }, [profileData, profileError, loaded]);
 
   if (!loaded) {
     return <Loading />;
-  }else
+  }
 
   //notificaation interaction listener
   // Notifications.addNotificationResponseReceivedListener((response) => {
@@ -142,16 +140,23 @@ export default function RootLayout() {
   //   router.push(response.notification.request.identifier)
   // }
   // });
+  else
+    return (
+      <PaperProvider theme={theme} settings={{ rippleEffectEnabled: false }}>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ headerShown: false }} />
+          <Stack.Screen name="register" options={{ headerShown: false }} />
+          <Stack.Screen name="physics-sim" options={{ headerShown: false }} />
+          <Stack.Screen name="oscillation" options={{ headerShown: false }} />
+          <Stack.Screen name="velocity" options={{ headerShown: false }} />
+          <Stack.Screen name="light" options={{ headerShown: false }} />
+          <Stack.Screen name="graph" options={{ headerShown: false }} />
+          <Stack.Screen name="water" options={{ headerShown: false }} />
+          <Stack.Screen name="game" options={{ headerShown: false }} />
 
-  return (
-    <PaperProvider theme={theme} settings={{ rippleEffectEnabled: false }}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="register" options={{ headerShown: false }} />
-        <Stack.Screen name="physics-sim" options={{ headerShown: false }} />
-        <Stack.Screen name="+not-found" />
-      </Stack>
-    </PaperProvider>
-  );
+          <Stack.Screen name="+not-found" />
+        </Stack>
+      </PaperProvider>
+    );
 }

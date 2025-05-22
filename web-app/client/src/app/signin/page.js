@@ -16,6 +16,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { url } from "@/components/Url/page";
 
 export default function SignIn() {
   const [showPassword, setShowPassword] = useState(false);
@@ -35,8 +36,8 @@ export default function SignIn() {
     setIsLoading(true);
 
     try {
-      // Replace with your actual API endpoint
-      const response = await fetch(`/api/user/login`, {
+      console.log(email, password);
+      const response = await fetch(`${url}/api/user/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -45,20 +46,16 @@ export default function SignIn() {
       });
 
       const data = await response.json();
-
+      console.log(data);
       if (!response.ok) {
         throw new Error(data.message || "Login failed");
       }
 
-      Cookies.set("AccessToken", data.token.accessToken);
-      Cookies.set("RefreshToken", data.token.refreshToken);
+      Cookies.set("AccessToken", data.accessToken);
+      Cookies.set("RefreshToken", data.refreshToken);
 
-      if (data.role === "student") {
-        router.push("/userdashboard/overview");
-      } else if (data.role === "admin") {
-        router.push("/admindashboard/overview");
-      } else {
-        router.push("/dashboard");
+      if (data.role === "RESEARCHER") {
+        router.push("/researchdashboard/overview");
       }
 
       alert("Login successful!");

@@ -29,17 +29,11 @@ export default function HomeScreen() {
     >
       <StatusBar backgroundColor={colors.tertiary} />
       <Text>This is good</Text>
-      <Button
-        mode="contained"
-        onPress={handleLogout}
-        style={{ margin: 16 }}
-      >
+      <Button mode="contained" onPress={handleLogout} style={{ margin: 16 }}>
         Logout
       </Button>
 
-      <CustomButton
-          onPress={()=>router.push('/physics-sim')}
-      >
+      <CustomButton onPress={() => router.push("/game")}>
         Physics Simulation
       </CustomButton>
     </ScrollView>

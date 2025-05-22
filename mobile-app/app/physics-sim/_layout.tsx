@@ -1,110 +1,388 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions } from 'react-native';
+"use client";
 
-// Physics constants
-const PIXELS_PER_METER = 10;
-const UPDATE_INTERVAL_MS = 30; // ~33 FPS
-const A_CAR_VELOCITY = 20; // pixels per second (constant)
-const B_CAR_ACCELERATION = 10; // pixels per second squared
-const screenHeight = Dimensions.get('window').height;
+import { useRef } from "react";
+import { View, Button, StyleSheet } from "react-native";
+import WebView from "react-native-webview";
 
-export default function App() {
-  const [carAPosition, setCarAPosition] = useState(50);
-  const [carBPosition, setCarBPosition] = useState(50);
-  const [carASpeed, setCarASpeed] = useState(0);
-  const [carBSpeed, setCarBSpeed] = useState(0);
-  const [simulationEnded, setSimulationEnded] = useState(false);
+const PhysicsSimulator = () => {
+  const webViewRef = useRef(null);
 
-  // Physics state
-  const carAVelocity = useRef(A_CAR_VELOCITY); // pixels per second (constant)
-  const carBVelocity = useRef(0);    // starts at 0
-  const carBAcceleration = useRef(B_CAR_ACCELERATION);      // pixels per second squared
+  const htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
+  <style>
+    body { 
+      margin: 0; 
+      overflow: hidden; 
+      touch-action: none;
+      font-family: Arial;
+    }
+    #canvas { 
+      display: block; 
+      background: #f0f8ff;
+    }
+    .law-panel {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      max-width: 300px;
+    }
+    .law-title {
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 5px;
+    }
+    .law-description {
+      font-size: 14px;
+      color: #34495e;
+    }
+    .controls {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+    }
+    button {
+      padding: 8px 15px;
+      background: #3498db;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .force-indicator {
+      position: absolute;
+      color: #e74c3c;
+      font-weight: bold;
+      font-size: 14px;
+      pointer-events: none;
+    }
+    .mass-indicator {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 10px;
+      border-radius: 5px;
+    }
+    .mass-control {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+    .mass-control button {
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    .mass-value {
+      margin: 0 10px;
+      width: 40px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="law-panel">
+    <div class="law-title" id="lawTitle">Newton's First Law</div>
+    <div class="law-description" id="lawDesc">
+      An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force.
+    </div>
+  </div>
+  
+  <div class="mass-indicator">
+    <div>Mass Control</div>
+    <div class="mass-control">
+      <button onclick="decreaseMass()">-</button>
+      <span class="mass-value" id="massValue">1</span>
+      <button onclick="increaseMass()">+</button>
+    </div>
+    <div>Force: <span id="forceValue">0</span></div>
+    <div>Acceleration: <span id="accelerationValue">0</span></div>
+  </div>
+  
+  <canvas id="canvas"></canvas>
+  
+  <div class="controls">
+    <button onclick="applyForce('small')">Small Force</button>
+    <button onclick="applyForce('medium')">Medium Force</button>
+    <button onclick="applyForce('large')">Large Force</button>
+    <button onclick="resetSimulation()">Reset</button>
+  </div>
 
-  const lastUpdateTime = useRef(Date.now());
-  const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
+  <script>
+    const { Engine, Render, Bodies, World, Body, Composite, Vector } = Matter;
 
-  useEffect(() => {
-    gameLoopRef.current = setInterval(() => {
-      const now = Date.now();
-      const deltaTime = (now - lastUpdateTime.current) / 1000; // in seconds
-      lastUpdateTime.current = now;
+    // Physics engine setup
+    const engine = Engine.create({
+      gravity: { x: 0, y: 0 } // No gravity to better demonstrate Newton's laws
+    });
+    const world = engine.world;
+    const canvas = document.getElementById('canvas');
+    
+    // Responsive canvas
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
 
-      // Update Car A (constant velocity)
-      const newCarAPos = carAPosition + carAVelocity.current * deltaTime;
-      const newCarASpeed = carAVelocity.current / PIXELS_PER_METER;
-
-      // Update Car B (accelerating)
-      carBVelocity.current += carBAcceleration * deltaTime;
-      const newCarBPos = carBPosition + carBVelocity.current * deltaTime;
-      const newCarBSpeed = carBVelocity.current / PIXELS_PER_METER;
-
-      setCarAPosition(newCarAPos);
-      setCarASpeed(newCarASpeed);
-
-      setCarBPosition(newCarBPos);
-      setCarBSpeed(newCarBSpeed);
-
-      // End simulation if both cars are off-screen
-      if (newCarAPos > screenHeight && newCarBPos > screenHeight) {
-        clearInterval(gameLoopRef.current);
-        setSimulationEnded(true);
+    // Renderer
+    const render = Render.create({
+      canvas: canvas,
+      engine: engine,
+      options: {
+        width: canvas.width,
+        height: canvas.height,
+        wireframes: false,
+        background: '#f0f8ff',
+        showVelocity: true
       }
-    }, UPDATE_INTERVAL_MS);
+    });
 
-    return () => clearInterval(gameLoopRef.current);
-  }, [carAPosition, carBPosition]);
+    // Variables for simulation
+    let block;
+    let blockMass = 1;
+    let lastForce = { x: 0, y: 0 };
+    let forceIndicator = document.createElement('div');
+    forceIndicator.className = 'force-indicator';
+    document.body.appendChild(forceIndicator);
+
+    // Create physics objects
+    function createBlock() {
+      return Bodies.rectangle(canvas.width/2, canvas.height/2, 80, 40, { 
+        restitution: 0.7,
+        friction: 0.005,
+        frictionAir: 0.001, // Low air friction to demonstrate first law
+        mass: blockMass,
+        render: { 
+          fillStyle: '#27ae60',
+          strokeStyle: '#2ecc71',
+          lineWidth: 2
+        }
+      });
+    }
+
+    const floor = Bodies.rectangle(canvas.width/2, canvas.height-30, canvas.width, 60, { 
+      isStatic: true,
+      render: { fillStyle: '#2c3e50' }
+    });
+
+    const leftWall = Bodies.rectangle(0, canvas.height/2, 40, canvas.height, { 
+      isStatic: true,
+      render: { fillStyle: '#2c3e50' }
+    });
+
+    const rightWall = Bodies.rectangle(canvas.width, canvas.height/2, 40, canvas.height, { 
+      isStatic: true,
+      render: { fillStyle: '#2c3e50' }
+    });
+
+    const topWall = Bodies.rectangle(canvas.width/2, 0, canvas.width, 40, { 
+      isStatic: true,
+      render: { fillStyle: '#2c3e50' }
+    });
+
+    // Initialize simulation
+    function initSimulation() {
+      block = createBlock();
+      World.add(world, [block, floor, leftWall, rightWall, topWall]);
+    }
+
+    // Mass control functions
+    function increaseMass() {
+      blockMass += 0.5;
+      updateMassDisplay();
+      resetSimulation();
+    }
+
+    function decreaseMass() {
+      if (blockMass > 0.5) {
+        blockMass -= 0.5;
+        updateMassDisplay();
+        resetSimulation();
+      }
+    }
+
+    function updateMassDisplay() {
+      document.getElementById('massValue').textContent = blockMass.toFixed(1);
+    }
+
+    // Apply force (Second Law demo)
+    function applyForce(magnitude) {
+      let forceX, forceY;
+      
+      switch(magnitude) {
+        case 'small':
+          forceX = 0.01;
+          break;
+        case 'medium':
+          forceX = 0.03;
+          break;
+        case 'large':
+          forceX = 0.06;
+          break;
+        default:
+          forceX = 0.01;
+      }
+      
+      // Random direction
+      forceX *= (Math.random() > 0.5 ? 1 : -1);
+      forceY = -0.01 * (Math.random() > 0.5 ? 1 : -1);
+      
+      lastForce = { x: forceX, y: forceY };
+      Body.applyForce(block, block.position, { x: forceX, y: forceY });
+      
+      // Calculate and display acceleration (F = ma, so a = F/m)
+      const forceValue = Math.sqrt(forceX * forceX + forceY * forceY);
+      const accelerationValue = forceValue / blockMass;
+      
+      document.getElementById('forceValue').textContent = forceValue.toFixed(4);
+      document.getElementById('accelerationValue').textContent = accelerationValue.toFixed(4);
+      
+      updateLawDisplay("SECOND");
+      
+      // Show force vector
+      showForceIndicator(block.position, { x: forceX * 2000, y: forceY * 2000 });
+    }
+
+    // Show force indicator arrow
+    function showForceIndicator(position, force) {
+      const scale = 5000; // Scale to make the force visible
+      const endX = position.x + force.x * scale;
+      const endY = position.y + force.y * scale;
+      
+      forceIndicator.style.left = position.x + 'px';
+      forceIndicator.style.top = position.y + 'px';
+      forceIndicator.textContent = '→ Force';
+      
+      // Hide after 2 seconds
+      setTimeout(() => {
+        forceIndicator.textContent = '';
+      }, 2000);
+    }
+
+    // Reset simulation (First Law demo)
+    function resetSimulation() {
+      Composite.clear(world);
+      initSimulation();
+      updateLawDisplay("FIRST");
+      document.getElementById('forceValue').textContent = '0';
+      document.getElementById('accelerationValue').textContent = '0';
+    }
+
+    // Update educational content
+    function updateLawDisplay(law) {
+      const titleEl = document.getElementById('lawTitle');
+      const descEl = document.getElementById('lawDesc');
+      
+      switch(law) {
+        case "FIRST":
+          titleEl.textContent = "Newton's First Law (Inertia)";
+          descEl.textContent = "An object at rest stays at rest, and an object in motion stays in motion unless acted upon by an external force. The block will remain stationary until a force is applied.";
+          break;
+        case "SECOND":
+          titleEl.textContent = "Newton's Second Law (F=ma)";
+          descEl.textContent = "Force equals mass times acceleration (F=ma). With the same force, a more massive object accelerates less. Try changing the mass and applying the same force to see the difference in acceleration.";
+          break;
+        case "THIRD":
+          titleEl.textContent = "Newton's Third Law (Action-Reaction)";
+          descEl.textContent = "For every action, there is an equal and opposite reaction. When the block collides with a wall, both the block and wall experience equal and opposite forces.";
+          break;
+      }
+    }
+
+    // Detect collisions for Third Law demo
+    Matter.Events.on(engine, 'collisionStart', (event) => {
+      const pairs = event.pairs;
+      for (let i = 0; i < pairs.length; i++) {
+        const pair = pairs[i];
+        if (pair.bodyA === block || pair.bodyB === block) {
+          updateLawDisplay("THIRD");
+          
+          // Show reaction force
+          const velocity = block.velocity;
+          const reactionForce = { 
+            x: -velocity.x * block.mass * 0.1, 
+            y: -velocity.y * block.mass * 0.1 
+          };
+          
+          // Update force and acceleration displays for the collision
+          const forceValue = Math.sqrt(reactionForce.x * reactionForce.x + reactionForce.y * reactionForce.y);
+          const accelerationValue = forceValue / blockMass;
+          
+          document.getElementById('forceValue').textContent = forceValue.toFixed(4);
+          document.getElementById('accelerationValue').textContent = accelerationValue.toFixed(4);
+        }
+      }
+    });
+
+    // Start the engine
+    Engine.run(engine);
+    Render.run(render);
+
+    // Initial setup
+    initSimulation();
+    updateMassDisplay();
+  </script>
+</body>
+</html>
+  `;
+
+  const handleReset = () => {
+    webViewRef.current?.reload();
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.speedText}>🚗 Car A (Constant): {carASpeed.toFixed(2)} m/s</Text>
-      <Text style={styles.speedText}>🏎️ Car B (Accelerating): {carBSpeed.toFixed(2)} m/s</Text>
-      {simulationEnded && <Text style={styles.endedText}>🏁 Simulation Ended</Text>}
-
-      <View style={styles.track}>
-        {/* Car A (blue) */}
-        <View style={[styles.car, styles.carA, { left: 200, top: carAPosition }]} />
-        
-        {/* Car B (red) */}
-        <View style={[styles.car, styles.carB, { left: 300, top: carBPosition }]} />
+      <WebView
+        ref={webViewRef}
+        originWhitelist={["*"]}
+        source={{ html: htmlContent }}
+        style={styles.webview}
+        javaScriptEnabled={true}
+        domStorageEnabled={true}
+        startInLoadingState={true}
+      />
+      <View style={styles.controls}>
+        <Button
+          title="Reset Simulation"
+          onPress={handleReset}
+          color="#3498db"
+        />
       </View>
     </View>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 60,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: "#ecf0f1"
   },
-  track: {
-    flex: 1,
-    backgroundColor: '#e0e0e0',
-    marginTop: 20,
+  webview: {
+    flex: 1
   },
-  car: {
-    position: 'absolute',
-    width: 30,
-    height: 60,
-    borderRadius: 6,
-  },
-  carA: {
-    backgroundColor: 'blue',
-  },
-  carB: {
-    backgroundColor: 'red',
-  },
-  speedText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginLeft: 20,
-    marginBottom: 4,
-  },
-  endedText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'green',
-    marginLeft: 20,
-    marginTop: 10,
-  },
+  controls: {
+    padding: 10,
+    backgroundColor: "white",
+    borderTopWidth: 1,
+    borderTopColor: "#ddd"
+  }
 });
+
+export default PhysicsSimulator;
