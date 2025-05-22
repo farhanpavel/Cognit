@@ -24,44 +24,44 @@ const generateToken = (user) => {
 };
 
 export const refreshToken = async (req, res) => {
-    const { refreshToken } = req.body;
-    if (!refreshToken) {
-        return res.status(401).json("access Denied");
+  const { refreshToken } = req.body;
+  if (!refreshToken) {
+    return res.status(401).json("access Denied");
+  }
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      return res.status(401).json("Invalid Refresh TOken");
     }
-    jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
-        if (err) {
-        return res.status(401).json("Invalid Refresh TOken");
-        }
-        const accessToken = jwt.sign(
-        { id: user.id },
-        process.env.ACCESS_TOKEN_SECRET,
-        { expiresIn: "7d" }
-        );
-        res.json({ accessToken });
-    });
-}
+    const accessToken = jwt.sign(
+      { id: user.id },
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+    res.json({ accessToken });
+  });
+};
 
 export const getProfile = async (req, res) => {
-    const userId = req.user.id;
-    const userData = await prisma.user.findUnique({
-        where: {
-        id: userId,
-        },
-        select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-        },
-    });
-    if (!userData) {
-        return res.status(404).json({ message: "User not found" });
-    }
-    res.status(200).json(userData);
-}
+  const userId = req.user.id;
+  const userData = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+    select: {
+      id: true,
+      email: true,
+      name: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      updatedAt: true,
+    },
+  });
+  if (!userData) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  res.status(200).json(userData);
+};
 
 export const getUser = async (req, res) => {
   const userData = await prisma.user.findMany({});
@@ -204,7 +204,11 @@ export const userLogin = async (req, res) => {
 
   // Generate token and respond
   const token = generateToken(data);
-  res.status(200).json({ accessToken: token.accessToken,refreshToken:token.refreshToken, role: data.role });
+  res.status(200).json({
+    accessToken: token.accessToken,
+    refreshToken: token.refreshToken,
+    role: data.role,
+  });
 };
 
 const RefreshToken = async (req, res) => {
@@ -373,4 +377,4 @@ export const getNotifications = async (req, res) => {
     },
   });
   res.status(200).json(notifications);
-}
+};
