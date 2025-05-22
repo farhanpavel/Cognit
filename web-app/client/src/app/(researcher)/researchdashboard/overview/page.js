@@ -178,7 +178,7 @@ export default function ResearchDashboard() {
 
   // Handle scheduling a new meeting
   const handleScheduleMeeting = () => {
-    router.push("/research/meetings/new");
+    router.push("/researchdashboard/schedule/new");
   };
 
   // Handle updating meeting status
