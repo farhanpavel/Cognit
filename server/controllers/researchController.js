@@ -1,6 +1,7 @@
 import prisma from "../db.js";
 import admin from "firebase-admin";
 import "dotenv/config";
+import { sendNotification } from "./userController.js";
 
 export const getMeeting = async (req, res) => {
   const meeting = await prisma.meeting.findMany({});
@@ -45,6 +46,19 @@ export const createMeeting = async (req, res) => {
         creatorId: userId,
       },
     });
+
+    sendNotification(
+      {
+        title: title,
+        body: description,
+      },
+      "research",
+      {
+        meetUrl: meetingLink,
+        formUrl: formLink,
+      },
+      "https://cognit.vercel.app",
+    )
 
     res.status(201).json(meeting);
   } catch (error) {
