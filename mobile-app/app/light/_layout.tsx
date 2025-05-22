@@ -1,11 +1,15 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import { View, Button, StyleSheet } from "react-native";
-import WebView from "react-native-webview";
+import { useRef, useState } from "react"
+import { View, StyleSheet } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import WebView from "react-native-webview"
+import { Button, Surface, Text, IconButton } from "react-native-paper"
 
 const Light = () => {
-  const webViewRef = useRef(null);
+  const webViewRef = useRef(null)
+  const [isControlsExpanded, setIsControlsExpanded] = useState(false)
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false)
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -20,7 +24,7 @@ const Light = () => {
       padding: 0;
       overflow: hidden;
       font-family: Arial, sans-serif;
-      background-color: #1a1a2e;
+      background-color: #f0f8ff;
     }
     
     #canvas-container {
@@ -35,31 +39,43 @@ const Light = () => {
     
     .control-panel {
       position: absolute;
-      top: 20px;
-      left: 20px;
+      top: 0;
+      left: 0;
+      right: 0;
       background: rgba(255, 255, 255, 0.9);
       padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      width: 280px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       z-index: 100;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out;
+    }
+    
+    .control-panel.expanded {
+      max-height: 300px;
     }
     
     .info-panel {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      bottom: 0;
+      left: 0;
+      right: 0;
       background: rgba(255, 255, 255, 0.9);
       padding: 15px;
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      width: 280px;
+      box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
       z-index: 100;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease-in-out;
+    }
+    
+    .info-panel.expanded {
+      max-height: 300px;
     }
     
     h2 {
       margin-top: 0;
-      color: #333;
+      color: #20B486;
       font-size: 18px;
       margin-bottom: 15px;
     }
@@ -72,38 +88,47 @@ const Light = () => {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
-      color: #555;
+      color: #1C9777;
     }
     
     input[type="range"] {
       width: 100%;
       margin-bottom: 5px;
+      accent-color: #20B486;
     }
     
     .current-value {
       display: flex;
       justify-content: space-between;
       font-size: 14px;
+      color: #1C9777;
     }
     
     .formula-section {
       margin-top: 15px;
       padding: 10px;
-      background: #f5f5f5;
+      background: #f5f9f7;
       border-radius: 5px;
-      border-left: 4px solid #4a90e2;
+      border-left: 4px solid #20B486;
     }
     
     .formula {
       font-family: 'Courier New', monospace;
       font-weight: bold;
       margin-bottom: 5px;
+      color: #17A97B;
     }
     
     .result-row {
       display: flex;
       justify-content: space-between;
       margin-bottom: 5px;
+      color: #333;
+    }
+    
+    .result-row span:first-child {
+      color: #1C9777;
+      font-weight: bold;
     }
     
     .light-overlay {
@@ -123,13 +148,13 @@ const Light = () => {
       position: absolute;
       width: 6px;
       height: 6px;
-      background-color: #4a90e2;
+      background-color: #20B486;
       border-radius: 50%;
       z-index: 5;
     }
     
     button {
-      background: #4a90e2;
+      background: #20B486;
       color: white;
       border: none;
       padding: 10px 15px;
@@ -140,7 +165,29 @@ const Light = () => {
     }
     
     button:hover {
-      background: #3a80d2;
+      background: #17A97B;
+    }
+    
+    .panel-toggle {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #20B486;
+      color: white;
+      border: none;
+      border-radius: 0 0 8px 8px;
+      padding: 5px 15px;
+      font-size: 12px;
+      cursor: pointer;
+      z-index: 101;
+    }
+    
+    .top-toggle {
+      top: 0;
+    }
+    
+    .bottom-toggle {
+      bottom: 0;
     }
   </style>
 </head>
@@ -149,7 +196,7 @@ const Light = () => {
     <div class="light-overlay" id="light-effect"></div>
     <div id="electrons-container"></div>
     
-    <div class="control-panel">
+    <div class="control-panel" id="control-panel">
       <h2>Light Bulb Current Control</h2>
       
       <div class="input-group">
@@ -184,7 +231,9 @@ const Light = () => {
       <button id="toggle-switch">Turn On/Off</button>
     </div>
     
-    <div class="info-panel">
+    <button class="panel-toggle top-toggle" id="toggle-controls">Show Controls</button>
+    
+    <div class="info-panel" id="info-panel">
       <h2>Electrical Information</h2>
       
       <div class="result-row">
@@ -222,6 +271,8 @@ const Light = () => {
         <p>Light intensity is proportional to the power consumed by the bulb</p>
       </div>
     </div>
+    
+    <button class="panel-toggle bottom-toggle" id="toggle-info">Show Information</button>
   </div>
 
   <script>
@@ -241,7 +292,7 @@ const Light = () => {
         width: window.innerWidth,
         height: window.innerHeight,
         wireframes: false,
-        background: '#1a1a2e',
+        background: '#f0f8ff',
         showAngleIndicator: false
       }
     });
@@ -260,8 +311,8 @@ const Light = () => {
       battery = Bodies.rectangle(300, window.innerHeight / 2, 60, 120, {
         isStatic: true,
         render: {
-          fillStyle: '#e74c3c',
-          strokeStyle: '#c0392b',
+          fillStyle: '#20B486',
+          strokeStyle: '#17A97B',
           lineWidth: 2
         }
       });
@@ -270,8 +321,8 @@ const Light = () => {
       const positiveTerminal = Bodies.rectangle(300, window.innerHeight / 2 - 70, 20, 20, {
         isStatic: true,
         render: {
-          fillStyle: '#e74c3c',
-          strokeStyle: '#c0392b',
+          fillStyle: '#20B486',
+          strokeStyle: '#17A97B',
           lineWidth: 2
         }
       });
@@ -280,8 +331,8 @@ const Light = () => {
       const negativeTerminal = Bodies.rectangle(300, window.innerHeight / 2 + 70, 60, 10, {
         isStatic: true,
         render: {
-          fillStyle: '#2c3e50',
-          strokeStyle: '#2c3e50',
+          fillStyle: '#1C9777',
+          strokeStyle: '#1C9777',
           lineWidth: 2
         }
       });
@@ -291,7 +342,7 @@ const Light = () => {
         isStatic: true,
         render: {
           fillStyle: '#f5f5f5',
-          strokeStyle: '#bdc3c7',
+          strokeStyle: '#A8E2D0',
           lineWidth: 2
         }
       });
@@ -300,8 +351,8 @@ const Light = () => {
       const bulbBase = Bodies.trapezoid(window.innerWidth - 300, window.innerHeight / 2 + 50, 50, 30, 0.5, {
         isStatic: true,
         render: {
-          fillStyle: '#7f8c8d',
-          strokeStyle: '#7f8c8d',
+          fillStyle: '#1C9777',
+          strokeStyle: '#1C9777',
           lineWidth: 1
         }
       });
@@ -310,8 +361,8 @@ const Light = () => {
       wireTop = Bodies.rectangle(window.innerWidth / 2, window.innerHeight / 2 - 100, window.innerWidth - 600, 5, {
         isStatic: true,
         render: {
-          fillStyle: '#3498db',
-          strokeStyle: '#2980b9',
+          fillStyle: '#20B486',
+          strokeStyle: '#17A97B',
           lineWidth: 1
         }
       });
@@ -319,8 +370,8 @@ const Light = () => {
       wireBottom = Bodies.rectangle(window.innerWidth / 2, window.innerHeight / 2 + 100, window.innerWidth - 600, 5, {
         isStatic: true,
         render: {
-          fillStyle: '#3498db',
-          strokeStyle: '#2980b9',
+          fillStyle: '#20B486',
+          strokeStyle: '#17A97B',
           lineWidth: 1
         }
       });
@@ -329,8 +380,8 @@ const Light = () => {
       const switchBase = Bodies.rectangle(500, window.innerHeight / 2 - 100, 20, 20, {
         isStatic: true,
         render: {
-          fillStyle: '#2c3e50',
-          strokeStyle: '#2c3e50',
+          fillStyle: '#1C9777',
+          strokeStyle: '#1C9777',
           lineWidth: 1
         }
       });
@@ -339,8 +390,8 @@ const Light = () => {
         isStatic: true,
         angle: Math.PI / 4,
         render: {
-          fillStyle: '#e74c3c',
-          strokeStyle: '#c0392b',
+          fillStyle: '#20B486',
+          strokeStyle: '#17A97B',
           lineWidth: 1
         }
       });
@@ -361,9 +412,51 @@ const Light = () => {
       document.getElementById('current-slider').addEventListener('input', updateCurrent);
       document.getElementById('voltage-slider').addEventListener('input', updateVoltage);
       document.getElementById('toggle-switch').addEventListener('click', toggleCircuit);
+      document.getElementById('toggle-controls').addEventListener('click', toggleControlPanel);
+      document.getElementById('toggle-info').addEventListener('click', toggleInfoPanel);
       
       // Handle window resize
       window.addEventListener('resize', handleResize);
+    }
+    
+    // Toggle control panel
+    function toggleControlPanel() {
+      const controlPanel = document.getElementById('control-panel');
+      const toggleButton = document.getElementById('toggle-controls');
+      
+      if (controlPanel.classList.contains('expanded')) {
+        controlPanel.classList.remove('expanded');
+        toggleButton.textContent = 'Show Controls';
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'CONTROLS_COLLAPSED'
+        }));
+      } else {
+        controlPanel.classList.add('expanded');
+        toggleButton.textContent = 'Hide Controls';
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'CONTROLS_EXPANDED'
+        }));
+      }
+    }
+    
+    // Toggle info panel
+    function toggleInfoPanel() {
+      const infoPanel = document.getElementById('info-panel');
+      const toggleButton = document.getElementById('toggle-info');
+      
+      if (infoPanel.classList.contains('expanded')) {
+        infoPanel.classList.remove('expanded');
+        toggleButton.textContent = 'Show Information';
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'INFO_COLLAPSED'
+        }));
+      } else {
+        infoPanel.classList.add('expanded');
+        toggleButton.textContent = 'Hide Information';
+        window.ReactNativeWebView.postMessage(JSON.stringify({
+          type: 'INFO_EXPANDED'
+        }));
+      }
     }
     
     // Handle window resize
@@ -441,7 +534,7 @@ const Light = () => {
         // Update bulb color
         if (bulb) {
           bulb.render.fillStyle = '#f5f5f5';
-          bulb.render.strokeStyle = '#bdc3c7';
+          bulb.render.strokeStyle = '#A8E2D0';
         }
         
         document.getElementById('bulb-status').textContent = 'Off';
@@ -617,7 +710,24 @@ const Light = () => {
   </script>
 </body>
 </html>
-  `;
+  `
+
+  const handleMessage = (event) => {
+    try {
+      const data = JSON.parse(event.nativeEvent.data)
+      if (data.type === "CONTROLS_EXPANDED") {
+        setIsControlsExpanded(true)
+      } else if (data.type === "CONTROLS_COLLAPSED") {
+        setIsControlsExpanded(false)
+      } else if (data.type === "INFO_EXPANDED") {
+        setIsInfoExpanded(true)
+      } else if (data.type === "INFO_COLLAPSED") {
+        setIsInfoExpanded(false)
+      }
+    } catch (error) {
+      console.error("Error parsing WebView message:", error)
+    }
+  }
 
   const handleReset = () => {
     webViewRef.current?.injectJavaScript(`
@@ -639,51 +749,116 @@ const Light = () => {
       updateElectronAnimation();
       
       true;
-    `);
-  };
+    `)
+  }
 
   const handleToggle = () => {
     webViewRef.current?.injectJavaScript(`
       toggleCircuit();
+      const controlPanel = document.getElementById('control-panel');
+      controlPanel.classList.remove('expanded');
+      const toggleButton = document.getElementById('toggle-controls');
+      toggleButton.textContent = 'Show Controls';
+      window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CONTROLS_COLLAPSED' }));
+      const infoPanel = document.getElementById('info-panel');
+      infoPanel.classList.remove('expanded');
       true;
-    `);
-  };
+    `)
+  }
+
+  const toggleControlPanel = () => {
+    webViewRef.current?.injectJavaScript(`
+      toggleControlPanel();
+      true;
+    `)
+  }
+
+  const toggleInfoPanel = () => {
+    webViewRef.current?.injectJavaScript(`
+      toggleInfoPanel();
+      true;
+    `)
+  }
 
   return (
-    <View style={styles.container}>
-      <WebView
-        ref={webViewRef}
-        originWhitelist={["*"]}
-        source={{ html: htmlContent }}
-        style={styles.webview}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        startInLoadingState={true}
-      />
-      <View style={styles.controls}>
-        <Button title="Toggle Switch" onPress={handleToggle} color="#4a90e2" />
-        <Button title="Reset" onPress={handleReset} color="#e74c3c" />
+    <SafeAreaView style={styles.container}>
+      <Surface style={styles.header} elevation={2}>
+        <Text style={styles.title}>Light Bulb Simulator</Text>
+        <IconButton
+          icon={isControlsExpanded ? "chevron-up" : "chevron-down"}
+          size={24}
+          onPress={toggleControlPanel}
+          iconColor="white"
+        />
+      </Surface>
+
+      <View style={styles.webViewContainer}>
+        <WebView
+          ref={webViewRef}
+          originWhitelist={["*"]}
+          source={{ html: htmlContent }}
+          style={styles.webview}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          startInLoadingState={true}
+          onMessage={handleMessage}
+        />
       </View>
-    </View>
-  );
-};
+
+      <Surface style={styles.controls} elevation={2}>
+        <View style={styles.buttonContainer}>
+          <Button mode="contained" onPress={handleToggle} style={styles.button} buttonColor="#FFFFFF" icon="power">
+            Toggle Switch
+          </Button>
+          <Button mode="outlined" className="border-white" onPress={handleReset} style={styles.button} textColor="#FFFFFF" icon="refresh">
+            Reset
+          </Button>
+        </View>
+      </Surface>
+    </SafeAreaView>
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#1a1a2e"
+    backgroundColor: "#f0f8ff",
+  },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 15,
+    backgroundColor: "#20B486",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+  },
+  webViewContainer: {
+    flex: 1,
+    overflow: "hidden",
   },
   webview: {
-    flex: 1
+    flex: 1,
+    backgroundColor: "transparent",
   },
   controls: {
-    padding: 15,
+    padding: 10,
+    backgroundColor: "#20B486",
+    alignItems: "center",
+  },
+  buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    backgroundColor: "#16213e",
-    borderTopWidth: 1,
-    borderTopColor: "#0f3460"
-  }
-});
+    width: "100%",
+    marginTop: 5,
+  },
+  button: {
+    borderRadius: 8,
+    minWidth: 150,
+  },
+})
 
-export default Light;
+export default Light

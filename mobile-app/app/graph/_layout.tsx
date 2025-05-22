@@ -1,11 +1,14 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import { View, Button, StyleSheet } from "react-native";
-import WebView from "react-native-webview";
+import { useRef, useState } from "react"
+import { View, StyleSheet } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import WebView from "react-native-webview"
+import { Button, Surface, Text, IconButton } from "react-native-paper"
 
 const Graph = () => {
-  const webViewRef = useRef(null);
+  const webViewRef = useRef(null)
+  const [isLoading, setIsLoading] = useState(true)
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -21,7 +24,7 @@ const Graph = () => {
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f5f5f5;
+      background-color: #f0f8ff;
     }
     
     .container {
@@ -38,7 +41,7 @@ const Graph = () => {
     }
     
     h1 {
-      color: #333;
+      color: #20B486;
       margin-bottom: 10px;
     }
     
@@ -48,6 +51,7 @@ const Graph = () => {
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       margin-bottom: 20px;
+      border: 1px solid #A8E2D0;
     }
     
     .form-group {
@@ -58,16 +62,22 @@ const Graph = () => {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
-      color: #555;
+      color: #1C9777;
     }
     
-    input[type="text"] {
+    input[type="text"], input[type="number"] {
       width: 100%;
       padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      border: 1px solid #A8E2D0;
+      border-radius: 8px;
       font-size: 16px;
       box-sizing: border-box;
+    }
+    
+    input[type="text"]:focus, input[type="number"]:focus {
+      outline: none;
+      border-color: #20B486;
+      box-shadow: 0 0 0 2px rgba(32, 180, 134, 0.2);
     }
     
     .range-inputs {
@@ -87,26 +97,27 @@ const Graph = () => {
     }
     
     button {
-      padding: 10px 15px;
-      background-color: #4a90e2;
+      padding: 12px 15px;
+      background-color: #20B486;
       color: white;
       border: none;
-      border-radius: 4px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
       flex: 1;
+      transition: background-color 0.2s;
     }
     
     button:hover {
-      background-color: #3a80d2;
+      background-color: #17A97B;
     }
     
     button.secondary {
-      background-color: #95a5a6;
+      background-color: #1C9777;
     }
     
     button.secondary:hover {
-      background-color: #7f8c8d;
+      background-color: #17A97B;
     }
     
     .graph-container {
@@ -116,6 +127,7 @@ const Graph = () => {
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       margin-bottom: 20px;
       position: relative;
+      border: 1px solid #A8E2D0;
     }
     
     .canvas-container {
@@ -130,6 +142,12 @@ const Graph = () => {
       border-radius: 8px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.1);
       overflow-x: auto;
+      border: 1px solid #A8E2D0;
+    }
+    
+    .values-table h2 {
+      color: #20B486;
+      margin-top: 0;
     }
     
     table {
@@ -140,17 +158,17 @@ const Graph = () => {
     th, td {
       padding: 12px 15px;
       text-align: center;
-      border-bottom: 1px solid #ddd;
+      border-bottom: 1px solid #A8E2D0;
     }
     
     th {
-      background-color: #f8f9fa;
+      background-color: #f5f9f7;
       font-weight: bold;
-      color: #333;
+      color: #1C9777;
     }
     
     tr:hover {
-      background-color: #f5f5f5;
+      background-color: #f5f9f7;
     }
     
     .error-message {
@@ -162,30 +180,39 @@ const Graph = () => {
     
     .examples {
       margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
     }
     
     .example-btn {
       display: inline-block;
-      margin-right: 5px;
-      margin-bottom: 5px;
-      padding: 5px 10px;
-      background-color: #f0f0f0;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      padding: 8px 12px;
+      background-color: #f5f9f7;
+      border: 1px solid #A8E2D0;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 14px;
+      color: #1C9777;
+      transition: all 0.2s;
     }
     
     .example-btn:hover {
-      background-color: #e0e0e0;
+      background-color: #A8E2D0;
+      color: #17A97B;
     }
     
     .function-info {
-      margin-top: 10px;
-      padding: 10px;
-      background-color: #f8f9fa;
-      border-radius: 4px;
+      margin-top: 15px;
+      padding: 12px;
+      background-color: #f5f9f7;
+      border-radius: 8px;
       font-size: 14px;
+      border-left: 4px solid #20B486;
+    }
+    
+    .function-info strong {
+      color: #1C9777;
     }
   </style>
 </head>
@@ -275,6 +302,11 @@ const Graph = () => {
       
       // Initial plot
       plotGraph();
+      
+      // Notify React Native that the page is loaded
+      if (window.ReactNativeWebView) {
+        window.ReactNativeWebView.postMessage('loaded');
+      }
     });
     
     // Set example equation
@@ -380,8 +412,8 @@ const Graph = () => {
             label: 'y = ' + equation,
             data: data,
             showLine: true,
-            borderColor: '#4a90e2',
-            backgroundColor: 'rgba(74, 144, 226, 0.1)',
+            borderColor: '#20B486',
+            backgroundColor: 'rgba(32, 180, 134, 0.1)',
             borderWidth: 2,
             pointRadius: 0,
             fill: false
@@ -401,7 +433,11 @@ const Graph = () => {
               },
               title: {
                 display: true,
-                text: 'X'
+                text: 'X',
+                color: '#1C9777'
+              },
+              ticks: {
+                color: '#1C9777'
               }
             },
             y: {
@@ -414,7 +450,11 @@ const Graph = () => {
               },
               title: {
                 display: true,
-                text: 'Y'
+                text: 'Y',
+                color: '#1C9777'
+              },
+              ticks: {
+                color: '#1C9777'
               }
             }
           },
@@ -423,6 +463,22 @@ const Graph = () => {
               callbacks: {
                 label: function(context) {
                   return \`(\${context.parsed.x.toFixed(2)}, \${context.parsed.y.toFixed(2)})\`;
+                }
+              },
+              backgroundColor: '#17A97B',
+              titleColor: 'white',
+              bodyColor: 'white',
+              borderColor: '#A8E2D0',
+              borderWidth: 1,
+              displayColors: false,
+              padding: 10,
+              cornerRadius: 8
+            },
+            legend: {
+              labels: {
+                color: '#1C9777',
+                font: {
+                  weight: 'bold'
                 }
               }
             }
@@ -515,45 +571,105 @@ const Graph = () => {
   </script>
 </body>
 </html>
-  `;
+  `
 
   const handleRefresh = () => {
-    webViewRef.current?.reload();
-  };
+    webViewRef.current?.reload()
+    setIsLoading(true)
+  }
+
+  const handleMessage = (event) => {
+    if (event.nativeEvent.data === "loaded") {
+      setIsLoading(false)
+    }
+  }
 
   return (
-    <View style={styles.container}>
-      <WebView
-        ref={webViewRef}
-        originWhitelist={["*"]}
-        source={{ html: htmlContent }}
-        style={styles.webview}
-        javaScriptEnabled={true}
-        domStorageEnabled={true}
-        startInLoadingState={true}
-      />
-      <View style={styles.controls}>
-        <Button title="Refresh" onPress={handleRefresh} color="#4a90e2" />
+    <SafeAreaView style={styles.container}>
+      <Surface style={styles.header} elevation={2}>
+        <Text style={styles.title}>Mathematical Graph Displayer</Text>
+      </Surface>
+
+      <View style={styles.webviewContainer}>
+        <WebView
+          ref={webViewRef}
+          originWhitelist={["*"]}
+          source={{ html: htmlContent }}
+          style={styles.webview}
+          javaScriptEnabled={true}
+          domStorageEnabled={true}
+          startInLoadingState={true}
+          onMessage={handleMessage}
+        />
       </View>
-    </View>
-  );
-};
+
+      <Surface style={styles.controls} elevation={2}>
+        <Button
+          mode="contained"
+          onPress={handleRefresh}
+          style={styles.button}
+          buttonColor="#20B486"
+          icon="refresh"
+          loading={isLoading}
+        >
+          Refresh Graph
+        </Button>
+        <IconButton
+          icon="help-circle"
+          size={24}
+          iconColor="#20B486"
+          style={styles.helpButton}
+          onPress={() => {
+            webViewRef.current?.injectJavaScript(`
+              alert('Mathematical Graph Displayer Help\\n\\n• Enter a mathematical equation in terms of x\\n• Set the X-axis range\\n• Click "Plot Graph" to visualize\\n• Use example equations for quick testing\\n• View coordinate values in the table below');
+              true;
+            `)
+          }}
+        />
+      </Surface>
+    </SafeAreaView>
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f5f5f5"
+    backgroundColor: "#f0f8ff",
+  },
+  header: {
+    padding: 15,
+    backgroundColor: "#20B486",
+    alignItems: "center",
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "white",
+  },
+  webviewContainer: {
+    flex: 1,
+    overflow: "hidden",
   },
   webview: {
-    flex: 1
+    flex: 1,
+    backgroundColor: "transparent",
   },
   controls: {
+    flexDirection: "row",
     padding: 15,
     backgroundColor: "white",
+    alignItems: "center",
+    justifyContent: "space-between",
     borderTopWidth: 1,
-    borderTopColor: "#ddd",
-    alignItems: "center"
-  }
-});
+    borderTopColor: "#A8E2D0",
+  },
+  button: {
+    flex: 1,
+    borderRadius: 8,
+  },
+  helpButton: {
+    marginLeft: 10,
+  },
+})
 
-export default Graph;
+export default Graph
