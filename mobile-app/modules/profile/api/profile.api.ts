@@ -44,6 +44,20 @@ const profileApi = api.injectEndpoints({
         method: "PUT",
         body: body
       })
+    }),
+
+    getResearches: builder.query<any, void>({
+      query: () => ({
+        url: "/api/research/get/all",
+        method: "GET"
+      })
+    }),
+
+    enrollResearch: builder.mutation<any, { id: string }>({
+      query: (body) => ({
+        url: `/api/research/enroll/${body.id}`,
+        method: "GET"
+      })
     })
   })
 });
@@ -52,5 +66,7 @@ export const {
   useGetMyProfileMutation,
   useCreateProfileMutation,
   useUpdateProfileMutation,
-  useUpdateLocationMutation
+  useUpdateLocationMutation,
+  useGetResearchesQuery,
+  useEnrollResearchMutation
 } = profileApi;

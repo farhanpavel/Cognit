@@ -374,3 +374,4 @@ export const getNotifications = async (req, res) => {
   });
   res.status(200).json(notifications);
 }
+

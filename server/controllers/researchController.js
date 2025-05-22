@@ -55,5 +55,51 @@ export const createMeeting = async (req, res) => {
   }
 };
 
+export const getResearches = async (req, res) => {
+  const researchData = await prisma.meeting.findMany({
+    include: {
+      creator: true,
+      dataCollectors: true,
+      _count: {
+        select: {
+          dataCollectors: true,
+        }
+      }
+    }
+  });
+  res.status(200).json(researchData);
+};
+
+export const enrollResearch = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user.id;
+
+    // Check if the research exists
+    const research = await prisma.meeting.findUnique({
+      where: { id: id },
+    });
+
+    if (!research) {
+      return res.status(404).json({ message: "Research not found" });
+    }
+
+    // Enroll the user in the research
+    await prisma.meeting.update({
+      where: { id: id },
+      data: {
+        dataCollectors: {
+          connect: { id: userId },
+        },
+      },
+    });
+
+    res.status(200).json({ message: "Successfully enrolled in research" });
+  } catch (error) {
+    console.error("Error enrolling in research:", error);
+    res.status(500).json({ message: "Failed to enroll in research" });
+  }
+};
+
 
 

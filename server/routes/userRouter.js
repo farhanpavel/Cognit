@@ -8,7 +8,7 @@ import {
   unsubscribeTokenFromTopic,
   getNotifications,
   userLogin,
-  userRegister,
+  userRegister
 } from "../controllers/userController.js";
 import express from "express";
 import { jwtAuthentication } from "../middlewares/authMiddleware.js";

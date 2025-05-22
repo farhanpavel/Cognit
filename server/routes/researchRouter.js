@@ -4,16 +4,19 @@ import {
   createMeeting,
   getMeeting,
   updateMeeting,
+  getResearches,
+  enrollResearch,
 } from "../controllers/researchController.js";
 
 const researchRouter = express.Router();
 
-researchRouter.use(jwtAuthentication);
 
 // Meeting routes
-researchRouter.post("/meetings", createMeeting);
-researchRouter.put("/meetings", updateMeeting);
+researchRouter.post("/meetings", jwtAuthentication, createMeeting);
+researchRouter.put("/meetings", jwtAuthentication, updateMeeting);
 
 researchRouter.get("/", getMeeting);
+researchRouter.get("/get/all", getResearches);
+researchRouter.get("/enroll/:id", jwtAuthentication, enrollResearch);
 
 export default researchRouter;
