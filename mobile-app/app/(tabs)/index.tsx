@@ -33,7 +33,7 @@ export default function HomeScreen() {
         Logout
       </Button>
 
-      <CustomButton onPress={() => router.push("/velocity")}>
+      <CustomButton onPress={() => router.push("/water")}>
         Physics Simulation
       </CustomButton>
     </ScrollView>
