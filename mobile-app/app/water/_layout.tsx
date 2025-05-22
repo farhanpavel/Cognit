@@ -1,23 +1,18 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { View, StyleSheet, Dimensions } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import WebView from "react-native-webview"
-import { Button, Surface, Text, IconButton } from "react-native-paper"
-import { useSafeAreaInsets } from "react-native-safe-area-context"
-import { use } from "matter-js"
-let statusBarHeight=0;
+import { useEffect, useRef, useState } from "react";
+import { View, StyleSheet, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
+import { Button, Surface, Text, IconButton } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { use } from "matter-js";
+let statusBarHeight = 0;
 
 const Chemistry = () => {
-  const webViewRef = useRef(null)
-  const [infoExpanded, setInfoExpanded] = useState(true)
-  const [controlExpanded, setControlExpanded] = useState(false)
-
-  const insets = useSafeAreaInsets()
-  useEffect(() => {
-    statusBarHeight = insets.top
-  },[insets])
+  const webViewRef = useRef(null);
+  const [infoExpanded, setInfoExpanded] = useState(true);
+  const [controlExpanded, setControlExpanded] = useState(false);
 
   const insets = useSafeAreaInsets();
   useEffect(() => {
@@ -446,12 +441,12 @@ const Chemistry = () => {
   </script>
 </body>
 </html>
-  `
+  `;
 
-  const [currentMolecule, setCurrentMolecule] = useState(null)
+  const [currentMolecule, setCurrentMolecule] = useState(null);
   const [funFact, setFunFact] = useState(
-    "Water (H₂O) is one of the few substances that expands when it freezes, which is why ice floats on water.",
-  )
+    "Water (H₂O) is one of the few substances that expands when it freezes, which is why ice floats on water."
+  );
 
   // Fun facts about chemistry
   const funFacts = [
@@ -464,38 +459,38 @@ const Chemistry = () => {
     "If you pour a handful of salt into a glass of water, the water level will actually go down.",
     "Lightning strikes produce ozone, which is why you can smell a sharp, clean scent after a thunderstorm.",
     "Coca-Cola was originally green before it was dyed brown.",
-    "The noble gases were once called 'inert gases' because scientists thought they couldn't react with anything.",
-  ]
+    "The noble gases were once called 'inert gases' because scientists thought they couldn't react with anything."
+  ];
 
   const handleMessage = (event) => {
     try {
-      const data = JSON.parse(event.nativeEvent.data)
+      const data = JSON.parse(event.nativeEvent.data);
       if (data.type === "moleculeSelected") {
-        setCurrentMolecule(data.molecule)
-        setFunFact(funFacts[Math.floor(Math.random() * funFacts.length)])
+        setCurrentMolecule(data.molecule);
+        setFunFact(funFacts[Math.floor(Math.random() * funFacts.length)]);
       } else if (data.type === "moleculesCleared") {
-        setCurrentMolecule(null)
+        setCurrentMolecule(null);
       }
     } catch (error) {
-      console.error("Error parsing WebView message:", error)
+      console.error("Error parsing WebView message:", error);
     }
-  }
+  };
 
   const handleReset = () => {
     webViewRef.current?.injectJavaScript(`
       clearMolecules();
       true;
-    `)
-  }
+    `);
+  };
 
   const handleShowMolecule = (molecule) => {
     webViewRef.current?.injectJavaScript(`
       createMolecule('${molecule}', window.innerWidth / 2, window.innerHeight / 2);
       true;
-    `)
-  }
+    `);
+  };
 
-  const screenHeight = Dimensions.get("window").height
+  const screenHeight = Dimensions.get("window").height;
 
   return (
     <SafeAreaView style={styles.container}>
@@ -514,7 +509,10 @@ const Chemistry = () => {
 
       {/* Control Panel Tab */}
       <Surface
-        style={[styles.controlTab, controlExpanded ? { height: 'auto' } : { height: 50 }]}
+        style={[
+          styles.controlTab,
+          controlExpanded ? { height: "auto" } : { height: 50 }
+        ]}
         elevation={3}
       >
         <View style={styles.tabHeader}>
@@ -591,7 +589,12 @@ const Chemistry = () => {
                 C₂H₆
               </Button>
             </View>
-            <Button mode="outlined" onPress={handleReset} style={styles.resetButton} textColor="#20B486">
+            <Button
+              mode="outlined"
+              onPress={handleReset}
+              style={styles.resetButton}
+              textColor="#20B486"
+            >
               Clear Simulation
             </Button>
           </View>
@@ -599,7 +602,13 @@ const Chemistry = () => {
       </Surface>
 
       {/* Info Panel Tab */}
-      <Surface style={[styles.infoTab, infoExpanded ? { height: 'auto' } : { height: 50 }]} elevation={3}>
+      <Surface
+        style={[
+          styles.infoTab,
+          infoExpanded ? { height: "auto" } : { height: 50 }
+        ]}
+        elevation={3}
+      >
         <View style={styles.tabHeader}>
           <Text style={styles.tabTitle}>Molecule Information</Text>
           <IconButton
@@ -622,12 +631,14 @@ const Chemistry = () => {
                 </Text>
 
                 <View style={styles.propertiesGrid}>
-                  {Object.entries(currentMolecule.properties).map(([key, value], index) => (
-                    <View key={index} style={styles.propertyItem}>
-                      <Text style={styles.propertyName}>{key}:</Text>
-                      <Text style={styles.propertyValue}>{value}</Text>
-                    </View>
-                  ))}
+                  {Object.entries(currentMolecule.properties).map(
+                    ([key, value], index) => (
+                      <View key={index} style={styles.propertyItem}>
+                        <Text style={styles.propertyName}>{key}:</Text>
+                        <Text style={styles.propertyValue}>{value}</Text>
+                      </View>
+                    )
+                  )}
                 </View>
 
                 <View style={styles.factBox}>
@@ -637,27 +648,29 @@ const Chemistry = () => {
               </View>
             ) : (
               <View style={styles.infoContent}>
-                <Text style={styles.emptyStateText}>Select a molecule to view its properties</Text>
+                <Text style={styles.emptyStateText}>
+                  Select a molecule to view its properties
+                </Text>
               </View>
             )}
           </View>
         )}
       </Surface>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f0f8ff"
   },
   webviewContainer: {
     flex: 1,
-    position: "relative",
+    position: "relative"
   },
   webview: {
-    flex: 1,
+    flex: 1
   },
   controlTab: {
     position: "absolute",
@@ -667,81 +680,81 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderTopWidth: 1,
     borderTopColor: "#A8E2D0",
-    overflow: "hidden",
+    overflow: "hidden"
   },
   infoTab: {
-  position: "absolute",
-  top: statusBarHeight ? 0 : 40,
-  left: 0,
-  right: 0,
-  backgroundColor: "white",
-  borderBottomWidth: 1, // Changed from borderTop
-  borderBottomColor: "#A8E2D0",
-  overflow: "hidden",
-},
+    position: "absolute",
+    top: statusBarHeight ? 0 : 40,
+    left: 0,
+    right: 0,
+    backgroundColor: "white",
+    borderBottomWidth: 1, // Changed from borderTop
+    borderBottomColor: "#A8E2D0",
+    overflow: "hidden"
+  },
 
   tabHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    height: 50,
+    height: 50
   },
   tabTitle: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#20B486",
+    color: "#20B486"
   },
   tabContent: {
     flex: 1,
-    padding: 10,
+    padding: 10
   },
   buttonGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "space-between",
-    marginBottom: 10,
+    marginBottom: 10
   },
   gridButton: {
     width: "30%",
     marginBottom: 8,
-    borderRadius: 4,
+    borderRadius: 4
   },
   resetButton: {
     borderColor: "#20B486",
-    marginTop: 5,
+    marginTop: 5
   },
   infoContent: {
-    flex: 1,
+    flex: 1
   },
   moleculeName: {
     fontSize: 16,
     fontWeight: "bold",
     color: "#20B486",
-    marginBottom: 4,
+    marginBottom: 4
   },
   moleculeDescription: {
     fontSize: 12,
     color: "#333",
-    marginBottom: 8,
+    marginBottom: 8
   },
   propertiesGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
-    justifyContent: "space-between",
+    justifyContent: "space-between"
   },
   propertyItem: {
     width: "48%",
-    marginBottom: 6,
+    marginBottom: 6
   },
   propertyName: {
     fontSize: 11,
     fontWeight: "bold",
-    color: "#1C9777",
+    color: "#1C9777"
   },
   propertyValue: {
     fontSize: 11,
-    color: "#333",
+    color: "#333"
   },
   factBox: {
     marginTop: 8,
@@ -749,24 +762,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#f0f8ff",
     borderRadius: 4,
     borderLeftWidth: 3,
-    borderLeftColor: "#20B486",
+    borderLeftColor: "#20B486"
   },
   factTitle: {
     fontSize: 12,
     fontWeight: "bold",
     color: "#20B486",
-    marginBottom: 2,
+    marginBottom: 2
   },
   factText: {
     fontSize: 11,
-    color: "#333",
+    color: "#333"
   },
   emptyStateText: {
     fontSize: 14,
     color: "#666",
     textAlign: "center",
-    marginTop: 20,
-  },
-})
+    marginTop: 20
+  }
+});
 
-export default Chemistry
+export default Chemistry;
