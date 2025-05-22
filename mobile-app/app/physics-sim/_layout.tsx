@@ -1,11 +1,12 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import { View, Button, StyleSheet } from "react-native";
-import WebView from "react-native-webview";
+import { useRef } from "react"
+import { View, Button, StyleSheet } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import WebView from "react-native-webview"
 
 const PhysicsSimulator = () => {
-  const webViewRef = useRef(null);
+  const webViewRef = useRef<WebView>(null)
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -37,16 +38,16 @@ const PhysicsSimulator = () => {
     }
     .law-title {
       font-weight: bold;
-      color: #2c3e50;
+      color: #20B486;
       margin-bottom: 5px;
     }
     .law-description {
       font-size: 14px;
-      color: #34495e;
+      color: #1C9777;
     }
     .controls {
       position: absolute;
-      bottom: 20px;
+      bottom: 10px;
       width: 100%;
       display: flex;
       justify-content: center;
@@ -54,26 +55,30 @@ const PhysicsSimulator = () => {
     }
     button {
       padding: 8px 15px;
-      background: #3498db;
+      background: #20B486;
       color: white;
       border: none;
       border-radius: 5px;
       cursor: pointer;
     }
+    button:hover {
+      background: #17A97B;
+    }
     .force-indicator {
       position: absolute;
-      color: #e74c3c;
+      color: #20B486;
       font-weight: bold;
       font-size: 14px;
       pointer-events: none;
     }
     .mass-indicator {
       position: absolute;
-      bottom: 10px;
+      bottom: 80px;
       right: 10px;
       background: rgba(255, 255, 255, 0.9);
       padding: 10px;
-      border-radius: 5px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     .mass-control {
       display: flex;
@@ -92,6 +97,8 @@ const PhysicsSimulator = () => {
       margin: 0 10px;
       width: 40px;
       text-align: center;
+      color: #1C9777;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -104,14 +111,14 @@ const PhysicsSimulator = () => {
   </div>
   
   <div class="mass-indicator">
-    <div>Mass Control</div>
+    <div style="color: #20B486; font-weight: bold;">Mass Control</div>
     <div class="mass-control">
       <button onclick="decreaseMass()">-</button>
       <span class="mass-value" id="massValue">1</span>
       <button onclick="increaseMass()">+</button>
     </div>
-    <div>Force: <span id="forceValue">0</span></div>
-    <div>Acceleration: <span id="accelerationValue">0</span></div>
+    <div style="color: #1C9777;">Force: <span id="forceValue" style="font-weight: bold;">0</span></div>
+    <div style="color: #1C9777;">Acceleration: <span id="accelerationValue" style="font-weight: bold;">0</span></div>
   </div>
   
   <canvas id="canvas"></canvas>
@@ -170,8 +177,8 @@ const PhysicsSimulator = () => {
         frictionAir: 0.001, // Low air friction to demonstrate first law
         mass: blockMass,
         render: { 
-          fillStyle: '#27ae60',
-          strokeStyle: '#2ecc71',
+          fillStyle: '#20B486',
+          strokeStyle: '#A8E2D0',
           lineWidth: 2
         }
       });
@@ -179,22 +186,22 @@ const PhysicsSimulator = () => {
 
     const floor = Bodies.rectangle(canvas.width/2, canvas.height-30, canvas.width, 60, { 
       isStatic: true,
-      render: { fillStyle: '#2c3e50' }
+      render: { fillStyle: '#1C9777' }
     });
 
     const leftWall = Bodies.rectangle(0, canvas.height/2, 40, canvas.height, { 
       isStatic: true,
-      render: { fillStyle: '#2c3e50' }
+      render: { fillStyle: '#1C9777' }
     });
 
     const rightWall = Bodies.rectangle(canvas.width, canvas.height/2, 40, canvas.height, { 
       isStatic: true,
-      render: { fillStyle: '#2c3e50' }
+      render: { fillStyle: '#1C9777' }
     });
 
     const topWall = Bodies.rectangle(canvas.width/2, 0, canvas.width, 40, { 
       isStatic: true,
-      render: { fillStyle: '#2c3e50' }
+      render: { fillStyle: '#1C9777' }
     });
 
     // Initialize simulation
@@ -341,14 +348,14 @@ const PhysicsSimulator = () => {
   </script>
 </body>
 </html>
-  `;
+  `
 
   const handleReset = () => {
-    webViewRef.current?.reload();
-  };
+    webViewRef.current?.reload()
+  }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <WebView
         ref={webViewRef}
         originWhitelist={["*"]}
@@ -358,31 +365,18 @@ const PhysicsSimulator = () => {
         domStorageEnabled={true}
         startInLoadingState={true}
       />
-      <View style={styles.controls}>
-        <Button
-          title="Reset Simulation"
-          onPress={handleReset}
-          color="#3498db"
-        />
-      </View>
-    </View>
-  );
-};
+    </SafeAreaView>
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#ecf0f1"
+    backgroundColor: "#f0f8ff",
   },
   webview: {
-    flex: 1
+    flex: 1,
   },
-  controls: {
-    padding: 10,
-    backgroundColor: "white",
-    borderTopWidth: 1,
-    borderTopColor: "#ddd"
-  }
-});
+})
 
-export default PhysicsSimulator;
+export default PhysicsSimulator

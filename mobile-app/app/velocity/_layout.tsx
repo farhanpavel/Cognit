@@ -1,11 +1,12 @@
-"use client";
+"use client"
 
-import { useRef } from "react";
-import { View, Button, StyleSheet, Text } from "react-native";
-import WebView from "react-native-webview";
+import { useRef } from "react"
+import { View, Button, StyleSheet, Text } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import WebView from "react-native-webview"
 
 const VelocityFormulas = () => {
-  const webViewRef = useRef(null);
+  const webViewRef = useRef(null)
 
   const htmlContent = `
     <!DOCTYPE html>
@@ -21,32 +22,53 @@ const VelocityFormulas = () => {
                 padding: 0;
                 overflow: hidden;
                 font-family: Arial, sans-serif;
+                background-color: #f0f8ff;
             }
             canvas {
                 display: block;
             }
             .info-panel {
                 position: absolute;
-                top: 10px;
-                left: 10px;
-                background: rgba(255, 255, 255, 0.9);
-                padding: 15px;
-                border-radius: 8px;
+                top: 20px;
+                margin: 0px 10px;
+                background: rgba(255, 255, 255, 0.95);
+                padding: 18px;
+                border-radius: 12px;
                 max-width: 350px;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+                border: 1px solid #A8E2D0;
+            }
+            h2 {
+                margin-top: 0;
+                color: #20B486;
+                font-size: 20px;
+                margin-bottom: 15px;
             }
             .formula {
                 font-family: 'Courier New', monospace;
-                margin: 8px 0;
-                padding: 8px;
-                background: #f0f0f0;
-                border-radius: 5px;
+                margin: 10px 0;
+                padding: 10px;
+                background: #f5f9f7;
+                border-radius: 8px;
                 font-size: 16px;
+                border-left: 3px solid #20B486;
+                color: #1C9777;
             }
             .car-info {
                 margin-top: 15px;
-                border-top: 1px solid #ddd;
-                padding-top: 10px;
+                border-top: 1px solid #A8E2D0;
+                padding-top: 15px;
+            }
+            .car-info p {
+                margin: 8px 0;
+                color: #333;
+            }
+            .car-info strong {
+                color: #20B486;
+            }
+            .car-info span {
+                font-weight: bold;
+                color: #1C9777;
             }
             .controls {
                 position: absolute;
@@ -54,26 +76,29 @@ const VelocityFormulas = () => {
                 left: 50%;
                 transform: translateX(-50%);
                 display: flex;
-                gap: 10px;
+                gap: 15px;
             }
             button {
-                padding: 8px 16px;
-                background: #4CAF50;
+                padding: 10px 20px;
+                background: #17A97B;
                 color: white;
                 border: none;
-                border-radius: 5px;
+                border-radius: 8px;
                 cursor: pointer;
-                font-size: 14px;
+                font-size: 15px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                min-width: 120px;
+                transition: background 0.2s;
             }
             button:hover {
-                background: #45a049;
+                background: #20B486;
             }
             .track {
                 position: absolute;
                 bottom: 100px;
                 width: 100%;
                 height: 20px;
-                background: #333;
+                background: #1C9777;
             }
         </style>
     </head>
@@ -86,13 +111,13 @@ const VelocityFormulas = () => {
             <div class="formula">3. v = u + at (Velocity with acceleration)</div>
             
             <div class="car-info">
-                <p><strong>Car 1 (Red):</strong> Constant velocity (s=vt)</p>
+                <p><strong>Car 1 (Green):</strong> Constant velocity (s=vt)</p>
                 <p>Displacement: <span id="car1-displacement">0</span> m</p>
                 <p>Velocity: <span id="car1-velocity">5</span> m/s</p>
             </div>
             
             <div class="car-info">
-                <p><strong>Car 2 (Blue):</strong> Constant acceleration (s=ut+½at², v=u+at)</p>
+                <p><strong>Car 2 (Teal):</strong> Constant acceleration (s=ut+½at², v=u+at)</p>
                 <p>Displacement: <span id="car2-displacement">0</span> m</p>
                 <p>Velocity: <span id="car2-velocity">0</span> m/s</p>
                 <p>Acceleration: <span id="car2-acceleration">2</span> m/s²</p>
@@ -102,10 +127,6 @@ const VelocityFormulas = () => {
         <div class="track"></div>
         <canvas id="canvas"></canvas>
         
-        <div class="controls">
-            <button id="startBtn">Start Simulation</button>
-            <button id="resetBtn">Reset</button>
-        </div>
         
         <script>
             // Matter.js module aliases
@@ -130,7 +151,7 @@ const VelocityFormulas = () => {
                     width: window.innerWidth,
                     height: window.innerHeight,
                     wireframes: false,
-                    background: '#f5f5f5'
+                    background: '#f0f8ff'
                 }
             });
             
@@ -143,20 +164,28 @@ const VelocityFormulas = () => {
             const car1 = Bodies.rectangle(100, groundY - carHeight/2, carWidth, carHeight, {
                 friction: 0,
                 restitution: 0,
-                render: { fillStyle: '#FF5252' }
+                render: { 
+                    fillStyle: '#20B486',
+                    strokeStyle: '#A8E2D0',
+                    lineWidth: 2
+                }
             });
             
             // Car 2 - Constant acceleration (s = ut + ½at², v = u + at)
             const car2 = Bodies.rectangle(100, groundY - carHeight/2 - 50, carWidth, carHeight, {
                 friction: 0,
                 restitution: 0,
-                render: { fillStyle: '#4285F4' }
+                render: { 
+                    fillStyle: '#17A97B',
+                    strokeStyle: '#A8E2D0',
+                    lineWidth: 2
+                }
             });
             
             // Ground
             const ground = Bodies.rectangle(window.innerWidth/2, groundY, window.innerWidth, 10, {
                 isStatic: true,
-                render: { fillStyle: '#333333' }
+                render: { fillStyle: '#1C9777' }
             });
             
             // Add all to the world
@@ -258,34 +287,30 @@ const VelocityFormulas = () => {
                 Render.setPixelRatio(render, window.devicePixelRatio);
             });
             
-            // Button event listeners
-            document.getElementById('startBtn').addEventListener('click', startSimulation);
-            document.getElementById('resetBtn').addEventListener('click', resetSimulation);
-            
             // Initialize
             resetSimulation();
         </script>
     </body>
     </html>
-  `;
+  `
 
   const startSimulation = () => {
-    webViewRef.current.injectJavaScript(`
+    webViewRef.current?.injectJavaScript(`
       startSimulation();
       true;
-    `);
-  };
+    `)
+  }
 
   const resetSimulation = () => {
-    webViewRef.current.injectJavaScript(`
+    webViewRef.current?.injectJavaScript(`
       resetSimulation();
       true;
-    `);
-  };
+    `)
+  }
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Physics Velocity Formulas Demonstration</Text>
+    <SafeAreaView style={styles.container}>
+      <Text style={styles.title}>Physics Velocity Formulas</Text>
       <WebView
         ref={webViewRef}
         originWhitelist={["*"]}
@@ -297,34 +322,42 @@ const VelocityFormulas = () => {
         scalesPageToFit={true}
       />
       <View style={styles.controls}>
-        <Button title="Start Simulation" onPress={startSimulation} />
-        <Button title="Reset" onPress={resetSimulation} />
+        <Button  title="Start Simulation" onPress={startSimulation} color="#20B486" />
+        <View style={styles.buttonSpacer} />
+        <Button title="Reset" onPress={resetSimulation} color="#17A97B" />
       </View>
-    </View>
-  );
-};
+    </SafeAreaView>
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1
+    flex: 1,
+    backgroundColor: "#f0f8ff",
   },
   title: {
     fontSize: 20,
     fontWeight: "bold",
     textAlign: "center",
-    marginVertical: 10,
-    color: "#333"
+    marginVertical: 12,
+    color: "#20B486",
+    paddingHorizontal: 20,
   },
   webview: {
-    flex: 1
+    flex: 1,
   },
   controls: {
     flexDirection: "row",
     justifyContent: "center",
-    padding: 10,
-    gap: 10,
-    backgroundColor: "#f0f0f0"
-  }
-});
+    alignItems: "center",
+    padding: 15,
+    backgroundColor: "white",
+    borderTopWidth: 1,
+    borderTopColor: "#A8E2D0",
+  },
+  buttonSpacer: {
+    width: 20,
+  },
+})
 
-export default VelocityFormulas;
+export default VelocityFormulas
