@@ -1,68 +1,9 @@
 "use client"
 
-import { useState } from "react"
-import { View, StyleSheet, ScrollView, TouchableOpacity } from "react-native"
+import { useState, useEffect } from "react"
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Surface, Text, IconButton, Divider, Badge, Button, Chip } from "react-native-paper"
-
-// Sample notification data with topics
-const sampleNotifications = [
-  {
-    id: 1,
-    title: "Physics Assignment Due",
-    message: "Your velocity formulas assignment is due tomorrow at 11:59 PM. Please submit it on time.",
-    timestamp: "2 hours ago",
-    read: false,
-    topic: "education",
-    formLink: "https://forms.example.com/physics-assignment",
-    meetLink: "https://meet.example.com/physics-class",
-  },
-  {
-    id: 2,
-    title: "Chemistry Lab Rescheduled",
-    message: "The chemistry lab session has been rescheduled to next Monday due to equipment maintenance.",
-    timestamp: "Yesterday",
-    read: false,
-    topic: "education",
-    formLink: "https://forms.example.com/chemistry-reschedule",
-  },
-  {
-    id: 3,
-    title: "Research Paper Accepted",
-    message: "Congratulations! Your research paper on quantum mechanics has been accepted for publication.",
-    timestamp: "2 days ago",
-    read: true,
-    topic: "research",
-    meetLink: "https://meet.example.com/research-discussion",
-  },
-  {
-    id: 4,
-    title: "Biology Project Groups",
-    message: "Biology project groups have been assigned. Check the portal for your group members and topic.",
-    timestamp: "3 days ago",
-    read: true,
-    topic: "education",
-  },
-  {
-    id: 5,
-    title: "Research Grant Opportunity",
-    message: "New research grant opportunity available for physics students. Application deadline is next month.",
-    timestamp: "4 days ago",
-    read: true,
-    topic: "research",
-    formLink: "https://forms.example.com/grant-application",
-  },
-  {
-    id: 6,
-    title: "System Maintenance",
-    message: "The learning portal will be under maintenance this Saturday from 2 AM to 5 AM. Plan accordingly.",
-    timestamp: "1 week ago",
-    read: true,
-    topic: "system",
-    formLink: "https://forms.example.com/maintenance-feedback",
-    meetLink: "https://meet.example.com/it-support",
-  },
-]
 
 // Topic color mapping
 const topicColors = {
@@ -85,24 +26,64 @@ const topicColors = {
 }
 
 const NotificationScreen = () => {
-  const [expandedId, setExpandedId] = useState<number | null>(null)
-  const [notifications, setNotifications] = useState(sampleNotifications)
+  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [notifications, setNotifications] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  const toggleExpand = (id: number) => {
+  const fetchNotifications = async () => {
+      try {
+        const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}api/user/get-notification`)
+        console.log("Response:", response)
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
+        const data = await response.json()
+        setNotifications(data)
+      } catch (err) {
+        console.error("Failed to fetch notifications:", err)
+        setError("Failed to load notifications. Please try again later.")
+      } finally {
+        setLoading(false)
+      }
+    }
+
+  useEffect(() => {
+    fetchNotifications()
+  }, [])
+
+  const toggleExpand = (id: string) => {
     const notification = notifications.find((n) => n.id === id)
     if (notification && (notification.formLink || notification.meetLink)) {
       setExpandedId(expandedId === id ? null : id)
     }
   }
 
-  const markAsRead = (id: number) => {
-    setNotifications(
-      notifications.map((notification) => (notification.id === id ? { ...notification, read: true } : notification)),
-    )
+  const markAsRead = async (id: string) => {
+    try {
+      // First update locally for instant feedback
+      setNotifications(
+        notifications.map((notification) => 
+          notification.id === id ? { ...notification, read: true } : notification
+        ),
+      )
+      
+    } catch (err) {
+      console.error("Failed to mark notification as read:", err)
+      // Revert local change if API call fails
+      setNotifications(
+        notifications.map((notification) => 
+          notification.id === id ? { ...notification, read: false } : notification
+        ),
+      )
+    }
   }
 
-  const handleNotificationPress = (id: number) => {
-    markAsRead(id)
+  const handleNotificationPress = (id: string) => {
+    const notification = notifications.find((n) => n.id === id)
+    if (!notification?.read) {
+      markAsRead(id)
+    }
     toggleExpand(id)
   }
 
@@ -110,6 +91,57 @@ const NotificationScreen = () => {
 
   const getTopicColor = (topic: string) => {
     return topicColors[topic] || topicColors.default
+  }
+
+  const formatTimestamp = (dateString: string) => {
+    const now = new Date()
+    const date = new Date(dateString)
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000)
+    
+    if (diffInSeconds < 60) return "Just now"
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} minutes ago`
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} hours ago`
+    return `${Math.floor(diffInSeconds / 86400)} days ago`
+  }
+
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Surface style={styles.header} elevation={2}>
+          <Text style={styles.title}>Notifications</Text>
+        </Surface>
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#20B486" />
+          <Text style={styles.loadingText}>Loading notifications...</Text>
+        </View>
+      </SafeAreaView>
+    )
+  }
+
+  if (error) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <Surface style={styles.header} elevation={2}>
+          <Text style={styles.title}>Notifications</Text>
+        </Surface>
+        <View style={styles.errorContainer}>
+          <IconButton icon="alert-circle-outline" size={48} iconColor="#FF6B6B" />
+          <Text style={styles.errorText}>{error}</Text>
+          <Button 
+            mode="contained" 
+            onPress={() => {
+              setLoading(true)
+              setError(null)
+              fetchNotifications()
+            }}
+            style={styles.retryButton}
+            buttonColor="#20B486"
+          >
+            Retry
+          </Button>
+        </View>
+      </SafeAreaView>
+    )
   }
 
   return (
@@ -145,7 +177,7 @@ const NotificationScreen = () => {
                       {!notification.read && <View style={styles.unreadDot} />}
                       <Text style={styles.notificationTitle}>{notification.title}</Text>
                     </View>
-                    <Text style={styles.timestamp}>{notification.timestamp}</Text>
+                    <Text style={styles.timestamp}>{formatTimestamp(notification.createdAt)}</Text>
                   </View>
 
                   <View style={styles.tagContainer}>
@@ -325,6 +357,30 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#666",
     marginTop: 12,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 16,
+    color: "#666",
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  errorText: {
+    fontSize: 16,
+    color: "#FF6B6B",
+    textAlign: "center",
+    marginVertical: 12,
+  },
+  retryButton: {
+    marginTop: 16,
   },
 })
 
