@@ -154,6 +154,7 @@ export default function RootLayout() {
           <Stack.Screen name="graph" options={{ headerShown: false }} />
           <Stack.Screen name="water" options={{ headerShown: false }} />
           <Stack.Screen name="game" options={{ headerShown: false }} />
+          <Stack.Screen name="human" options={{ headerShown: false }} />
 
           <Stack.Screen name="+not-found" />
         </Stack>
