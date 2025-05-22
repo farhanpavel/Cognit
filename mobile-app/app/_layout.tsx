@@ -16,6 +16,18 @@ import { useTestMutation } from "@/modules/auth/api/auth.api";
 import { useGetMyProfileMutation } from "@/modules/profile/api/profile.api";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import Loading from "@/components/ui/loading";
+import { Accelerometer } from 'expo-sensors';
+import * as Haptics from 'expo-haptics';
+
+
+// Detect shakes instead of volume buttons
+Accelerometer.addListener(({ x, y, z }) => {
+  const acceleration = Math.sqrt(x * x + y * y + z * z);
+  if (acceleration > 1.5) {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    console.log("Voice command activated");
+  }
+});
 
 
 SplashScreen.preventAutoHideAsync().then((r) => {
