@@ -42,26 +42,17 @@ export const refreshToken = async (req, res) => {
 };
 
 export const getProfile = async (req, res) => {
-  const userId = req.user.id;
-  const userData = await prisma.user.findUnique({
-    where: {
-      id: userId,
-    },
-    select: {
-      id: true,
-      email: true,
-      name: true,
-      role: true,
-      status: true,
-      createdAt: true,
-      updatedAt: true,
-    },
-  });
-  if (!userData) {
-    return res.status(404).json({ message: "User not found" });
-  }
-  res.status(200).json(userData);
-};
+    const userId = req.user.id;
+    const userData = await prisma.user.findUnique({
+        where: {
+        id: userId,
+        },
+    });
+    if (!userData) {
+        return res.status(404).json({ message: "User not found" });
+    }
+    res.status(200).json(userData);
+}
 
 export const getUser = async (req, res) => {
   const userData = await prisma.user.findMany({});
@@ -346,6 +337,16 @@ export const sendNotification = async (
     .catch((error) => {
       console.error("Error sending data message:", error);
     });
+
+    await prisma.notification.create({
+    data: {
+      title: notification.title,
+      message: notification.body,
+      topic: topic,
+      meetLink: data.meetUrl ? data.meetUrl : "",
+      formLink: data.formUrl ? data.formUrl : "",
+    },
+  });
 };
 
 export const sendNotificationWData = async (req, res) => {
@@ -358,15 +359,7 @@ export const sendNotificationWData = async (req, res) => {
   sendNotification(notification, topic, data, "https://bidyarthi.vercel.app");
   console.log(data);
   //save to db
-  await prisma.notification.create({
-    data: {
-      title: title,
-      message: body,
-      topic: topic,
-      meetLink: data.meetUrl ? data.meetUrl : "",
-      formLink: data.formUrl ? data.formUrl : "",
-    },
-  });
+  
   res.status(200).json({ message: "Notification sent successfully" });
 };
 

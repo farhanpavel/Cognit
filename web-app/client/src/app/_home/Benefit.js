@@ -8,44 +8,44 @@ import {
   Users,
   ArrowRight,
 } from "lucide-react";
-
+import Image from "next/image";
 export default function Benefit() {
   const benefits = [
     {
       icon: <Zap className="h-8 w-8 text-tertiary" />,
-      title: "Increased Productivity",
+      title: "Visual & Voice-Based Learning",
       description:
-        "Our tools automate repetitive tasks, allowing your team to focus on what truly matters. Users report saving up to 15 hours per week.",
+        "Cognit blends simulations, voice commands, and visual storytelling to make science accessible for learners of all literacy levels.",
     },
     {
       icon: <Shield className="h-8 w-8 text-tertiary" />,
-      title: "Enhanced Security",
+      title: "Inclusive by Design",
       description:
-        "Enterprise-grade security protocols protect your data at every level. We maintain strict compliance with industry standards.",
+        "Built with accessibility in mind — screen reader support, audio guidance, and haptic feedback ensure no student is left behind.",
     },
     {
       icon: <Clock className="h-8 w-8 text-tertiary" />,
-      title: "Time Efficiency",
+      title: "Offline Access",
       description:
-        "Streamlined workflows and intuitive interfaces reduce learning curves and help your team accomplish more in less time.",
+        "Download lessons, labs, and quizzes once — learn anytime, anywhere. Especially vital for rural and low-connectivity areas.",
     },
     {
       icon: <Users className="h-8 w-8 text-tertiary" />,
-      title: "Better Collaboration",
+      title: "Community & Collaboration",
       description:
-        "Real-time collaboration features enable seamless teamwork regardless of physical location or time zone differences.",
+        "Participate in science projects, share observations, and collaborate with students nationwide through citizen science modules.",
     },
     {
       icon: <Award className="h-8 w-8 text-tertiary" />,
-      title: "Quality Results",
+      title: "Localized & Relatable",
       description:
-        "Our intelligent systems help eliminate human error and ensure consistent, high-quality outputs for all your projects.",
+        "Science explained in Bangla and local dialects, using culturally relevant examples — making learning intuitive and familiar.",
     },
     {
       icon: <CheckCircle className="h-8 w-8 text-tertiary" />,
-      title: "Cost Reduction",
+      title: "Empowered Learning",
       description:
-        "By optimizing resources and reducing waste, our platform helps businesses save an average of 30% on operational costs.",
+        "Gamified challenges, progress tracking, and voice-controlled navigation foster independence, curiosity, and motivation.",
     },
   ];
 
@@ -56,11 +56,11 @@ export default function Benefit() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div className="p-6">
               <p className="text-4xl font-bold text-tertiary mb-2">93%</p>
-              <p className="text-gray-600">Customer satisfaction rate</p>
+              <p className="text-gray-600">Student Engagement Rate</p>
             </div>
             <div className="p-6">
               <p className="text-4xl font-bold text-tertiary mb-2">30%</p>
-              <p className="text-gray-600">Average cost reduction</p>
+              <p className="text-gray-600">Average tuition cost reduction</p>
             </div>
             <div className="p-6">
               <p className="text-4xl font-bold text-tertiary mb-2">15+</p>
@@ -75,11 +75,13 @@ export default function Benefit() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">
-              Why Choose <span className="text-tertiary">Our Platform</span>
+              Why <span className="text-tertiary">Cognit</span> Works for
+              Everyone
             </h2>
             <p className="text-[#5a5a5a] text-sm font-medium w-[50%] mx-auto text-center mt-3 ">
-              Our comprehensive solution provides numerous advantages that help
-              your business thrive in today&apos;s competitive landscape.
+              Cognit is more than an app — it’s a science learning platform
+              tailored for every student, regardless of location, ability, or
+              language.
             </p>
           </div>
 
@@ -105,29 +107,31 @@ export default function Benefit() {
         <div className="container mx-auto max-w-6xl">
           <div className="bg-white p-8 md:p-12 rounded-2xl shadow-lg border border-tertiary/20 relative">
             <div className="absolute -top-5 left-10 bg-tertiary text-white text-xl font-bold py-2 px-6 rounded-full">
-              Success Story
+              Learner Story
             </div>
             <div className="md:flex items-center gap-8">
               <div className="md:w-1/3 mb-6 md:mb-0">
-                <div className="aspect-square bg-gray-200 rounded-xl overflow-hidden">
-                  <div className="w-full h-full bg-tertiary/20 flex items-center justify-center">
-                    <span className="text-tertiary font-bold text-xl">
-                      Company Logo
-                    </span>
-                  </div>
+                <div className="aspect-square rounded-xl overflow-hidden">
+                  <Image
+                    src="/images/review_student.jpg"
+                    width={300}
+                    height={300}
+                    alt="Student giving testimonial"
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               </div>
               <div className="md:w-2/3">
                 <p className="text-xl italic mb-6">
-                  &quot;Implementing this platform has been transformative for
-                  our business. We&apos;ve seen dramatic improvements in
-                  efficiency, team collaboration, and overall output quality.
-                  The ROI has been exceptional. &quot;
+                  &quot;Before Cognit, I couldn't understand science classes
+                  because I can’t read well. Now I learn by listening and using
+                  pictures. I even did a water quality project in my
+                  village!&quot;
                 </p>
                 <div>
-                  <p className="font-bold text-lg">Sarah Johnson</p>
+                  <p className="font-bold text-lg">Abdullah</p>
                   <p className="text-gray-600">
-                    Chief Operations Officer, TechCorp Inc.
+                    Grade 8 Student, Kurigram District
                   </p>
                 </div>
               </div>
@@ -140,14 +144,14 @@ export default function Benefit() {
       <div className="bg-emerald-800 py-20 px-4">
         <div className="container mx-auto max-w-6xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
-            Ready to Experience These Benefits?
+            Bring Science to Every Student
           </h2>
           <p className="text-lg text-white/80 max-w-2xl mx-auto mb-10">
-            Join thousands of satisfied customers who have transformed their
-            businesses with our platform.
+            Partner with us or try Cognit today — empower learners with
+            inclusive, offline, and voice-first science education.
           </p>
           <button className="px-8 py-4 bg-white text-emerald-800 font-bold rounded-full hover:bg-white/90 transition-colors flex items-center gap-2 mx-auto">
-            Contact us
+            Get Involved
             <ArrowRight className="h-5 w-5" />
           </button>
         </div>

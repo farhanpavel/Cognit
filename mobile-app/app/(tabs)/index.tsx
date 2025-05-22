@@ -36,7 +36,10 @@ export default function HomeScreen() {
   const [userName, setUserName] = useState("Alex");
   const [isListening, setIsListening] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  const [recordingTimeout, setRecordingTimeout] = useState<NodeJS.Timeout | null>(null);
 
+
+  const [isRecording, setIsRecording] = useState(false);
   // Load user name from storage
   useEffect(() => {
     const loadUserName = async () => {
@@ -50,8 +53,21 @@ export default function HomeScreen() {
     loadUserName();
   }, []);
 
-  // Setup shake detection
   useEffect(() => {
+  let lastShake = 0;
+  let subscription: any = null;
+  
+  const subscribe = async () => {
+    subscription = Accelerometer.addListener(({ x, y, z }) => {
+      const acceleration = Math.sqrt(x * x + y * y + z * z);
+      const now = Date.now();
+      
+      if (acceleration > 1.5 && now - lastShake > 2000) {
+        lastShake = now;
+        handleShake();
+      }
+    });
+  };
     let lastShake = 0;
     let subscription: any = null;
 
@@ -67,10 +83,11 @@ export default function HomeScreen() {
       });
     };
 
-    subscribe();
-    return () => {
-      if (subscription) subscription.remove();
-    };
+  subscribe();
+  return () => {
+    if (subscription) subscription.remove();
+    if (recordingTimeout) clearTimeout(recordingTimeout);
+  };
   }, []);
 
   const handleShake = async () => {
@@ -78,6 +95,26 @@ export default function HomeScreen() {
     startVoiceCommand();
   };
 
+  // Updated startVoiceCommand function
+const startVoiceCommand = async () => {
+  if (isListening) return;
+
+  try {
+    setIsListening(true);
+    
+    // Cancel any pending timeout
+    if (recordingTimeout) {
+      clearTimeout(recordingTimeout);
+      setRecordingTimeout(null);
+    }
+
+    // Stop any existing recording
+    if (recording) {
+      await stopRecording(recording);
+    }
+
+    // Speak immediately about the features
+    await speak(`Hi ${userName}, welcome to Cognit. You can say "Study", "Research", or "Download". Which one would you like?`);
   const startVoiceCommand = async () => {
     try {
       setIsListening(true);
@@ -87,6 +124,12 @@ export default function HomeScreen() {
         `Hi ${userName}, welcome to Cognit. You can say "Study", "Research", or "Download". Which one would you like?`
       );
 
+    // Request permissions and set audio mode
+    await Audio.requestPermissionsAsync();
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: true,
+      playsInSilentModeIOS: true,
+    });
       // Start recording
       await Audio.requestPermissionsAsync();
       await Audio.setAudioModeAsync({
@@ -94,11 +137,30 @@ export default function HomeScreen() {
         playsInSilentModeIOS: true
       });
 
+    // Start a new recording
+    setTimeout(async () => {
       const { recording: newRecording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
-      setRecording(newRecording);
+      await console.log('Recording started');
+      await setTimeout(() => {
+      console.log("Stopping")
+      stopRecording(newRecording);
+    }, 5000);
+    }, 6000);
 
+    // Set timeout to stop recording after 5 seconds
+
+    //setRecordingTimeout(timeout);
+
+  } catch (error) {
+    console.error('Failed to start recording', error);
+    setIsListening(false);
+    setRecording(null);
+  } finally {
+    setIsListening(false);
+  }
+};
       // Stop after 5 seconds
       setTimeout(stopRecording, 5000);
     } catch (error) {
@@ -107,6 +169,18 @@ export default function HomeScreen() {
     }
   };
 
+const stopRecording = async (recording: Audio.Recording | null) => {
+  console.log("Stop function triggered")
+  try {
+    if (!recording) {
+      console.log("Recording is null");
+      return;
+    }
+    
+    await recording.stopAndUnloadAsync();
+    await Audio.setAudioModeAsync({
+      allowsRecordingIOS: false,
+    });
   const stopRecording = async () => {
     try {
       if (!recording) return;
@@ -116,11 +190,37 @@ export default function HomeScreen() {
         allowsRecordingIOS: false
       });
 
-      const uri = recording.getURI();
-      if (uri) {
-        await processVoiceCommand(uri);
-      }
+    const uri = recording.getURI();
+    console.log(uri);
+    if (uri) {
+      await processVoiceCommand(uri);
+      //play sound
+      //  const { sound } = await Audio.Sound.createAsync({ uri });
+      //  await sound.playAsync();
+    }
 
+    setRecording(null);
+    setIsListening(false);
+    
+    // Clear the timeout
+    if (recordingTimeout) {
+      clearTimeout(recordingTimeout);
+      setRecordingTimeout(null);
+    }
+  } catch (error) {
+    console.error('Failed to stop recording', error);
+    setIsListening(false);
+    setRecording(null);
+  }
+};
+// Add this cleanup function to handle component unmount
+useEffect(() => {
+  return () => {
+    if (recording) {
+      recording.stopAndUnloadAsync();
+    }
+    if (recordingTimeout) {
+      clearTimeout(recordingTimeout);
       setRecording(null);
       setIsListening(false);
     } catch (error) {
@@ -128,9 +228,11 @@ export default function HomeScreen() {
       setIsListening(false);
     }
   };
+}, [recording, recordingTimeout]);
 
   const processVoiceCommand = async (audioUri: string) => {
     try {
+      console.warn("Processing voice command..."); // Debug log
       // Read the audio file as base64
       const response = await fetch(audioUri);
       const blob = await response.blob();
@@ -144,9 +246,10 @@ export default function HomeScreen() {
         }
 
         try {
+          console.warn("Sending audio to API..."); // Debug log
           // Send to Google Cloud Speech-to-Text API
           const apiResponse = await axios.post(
-            `https://speech.googleapis.com/v1/speech:recognize?key=`,
+            `https://speech.googleapis.com/v1/speech:recognize?key=AIzaSyBwEpoyI_eqDJP8du449xO-8bjd44Ki3rc`,
             {
               config: {
                 encoding: "LINEAR16",
@@ -190,17 +293,21 @@ export default function HomeScreen() {
 
   const handleVoiceCommand = (command: string) => {
     console.warn("Processing command:", command); // Debug log
+    
+    if (command.toLocaleLowerCase().includes('study')) {
 
     if (command.includes("study")) {
       speak("Taking you to the Study section.");
       setTimeout(() => {
         router.push("/menu");
       }, 1500);
+    } else if (command.toLocaleLowerCase().includes('research')) {
     } else if (command.includes("research")) {
       speak("Taking you to the Research section.");
       setTimeout(() => {
         router.push("/research");
       }, 1500);
+    } else if (command.toLocaleLowerCase().includes('download')) {
     } else if (command.includes("download")) {
       speak("Taking you to the Download section.");
       setTimeout(() => {

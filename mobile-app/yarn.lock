@@ -8217,6 +8217,11 @@ react-native-gesture-handler@~2.16.1:
     lodash "^4.17.21"
     prop-types "^15.7.2"
 
+react-native-google-cloud-speech-to-text@^0.5.4:
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/react-native-google-cloud-speech-to-text/-/react-native-google-cloud-speech-to-text-0.5.4.tgz#6b0da886f7435dd24f834f795e02db2395f0a8ce"
+  integrity sha512-iNwTP8Gv+X39x+9EVeTw3OmDvcYV4+51y9UmoTeH/1Im+rJSl3CUbz7w3YdM6fFUNbf9+A0sz8yHZclz6tMkTg==
+
 react-native-helmet-async@2.0.4:
   version "2.0.4"
   resolved "https://registry.npmjs.org/react-native-helmet-async/-/react-native-helmet-async-2.0.4.tgz"

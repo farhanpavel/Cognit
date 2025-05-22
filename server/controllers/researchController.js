@@ -1,7 +1,8 @@
 import prisma from "../db.js";
 import admin from "firebase-admin";
 import "dotenv/config";
-import { sendNotification, sendNotificationWData } from "./userController.js";
+import { sendNotification } from "./userController.js";
+
 export const getMeeting = async (req, res) => {
   const userId = req.user.id;
   console.log(userId);
@@ -61,8 +62,9 @@ export const createMeeting = async (req, res) => {
         meetUrl: meetingLink,
         formUrl: formLink,
       },
-      "https://cognit.vercel.app"
-    );
+      "https://cognit.vercel.app",
+    )
+
     res.status(201).json(meeting);
   } catch (error) {
     console.error("Error creating meeting:", error);
@@ -86,6 +88,65 @@ export const getResearches = async (req, res) => {
   });
   res.status(200).json(researchData);
 };
+
+export const getResearchById = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const research = await prisma.meeting.findUnique({
+      where: { id: id },
+      include: {
+        creator: true,
+        dataCollectors: true,
+      },
+    });
+
+    if (!research) {
+      return res.status(404).json({ message: "Research not found" });
+    }
+
+    res.status(200).json(research);
+  } catch (error) {
+    console.error("Error fetching research:", error);
+    res.status(500).json({ message: "Failed to fetch research" });
+  }
+}
+
+export const getMyEndrollments = async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    const myEndrollments = await prisma.meeting.findMany({
+      where: {
+        creatorId: userId,
+      },
+      include: {
+        dataCollectors:true
+      }
+    });
+
+    console.log(myEndrollments);
+
+    let collectors = [];
+    myEndrollments.forEach((meeting) => {
+      meeting.dataCollectors.forEach((collector) => {
+         //if doesn't exist in the array, push it
+        if (!collectors.some(item => item.id === collector.id)) {
+          collectors.push(collector);
+        }
+      });
+    });
+
+    if (!collectors.length) {
+      return res.status(404).json({ message: "No collectors found" });
+    }
+
+    res.status(200).json(collectors);
+  } catch (error) {
+    console.error("Error fetching my enrollments:", error);
+    res.status(500).json({ message: "Failed to fetch enrollments" });
+  }
+}
 
 export const enrollResearch = async (req, res) => {
   try {
