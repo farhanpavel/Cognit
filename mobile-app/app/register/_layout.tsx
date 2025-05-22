@@ -26,8 +26,13 @@ const RegisterScreen = () => {
     };
   }, []);
   return (
-    <View className="flex flex-1">
-      <BoardingTops />
+     <View className="flex flex-1">
+         {/*<BoardingTops />*/}
+         <Image
+             className={`content-center items-center self-center ${keyboardVisible?'mt-6':'mt-24'} rounded-full`}
+             source={require("@/assets/images/adaptive-icon.png")}
+             style={{ height: 150, width: 150 }}
+         />
       <RegisterForm setKeyboardOpen={setKeyboardVisible} />
       {/*!keyboardVisible && (
         <Image

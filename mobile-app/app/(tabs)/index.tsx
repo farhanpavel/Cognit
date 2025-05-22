@@ -28,6 +28,7 @@ import * as Haptics from 'expo-haptics';
 import { Accelerometer } from 'expo-sensors';
 import * as Speech from 'expo-speech';
 import axios from 'axios';
+import { useGetMyProfileMutation } from "@/modules/profile/api/profile.api";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -37,7 +38,19 @@ export default function HomeScreen() {
   const [isListening, setIsListening] = useState(false);
   const [recording, setRecording] = useState<Audio.Recording | null>(null);
   const [recordingTimeout, setRecordingTimeout] = useState<NodeJS.Timeout | null>(null);
+  const [ loadProfile, { data:profileData,isLoading:profileLoading  } ] = useGetMyProfileMutation();
+  const [profile, setProfile] = useState<any>(null);
 
+  useEffect(() => {
+    loadProfile(null);
+  },[]);
+
+  useEffect(() => {
+    if (profileData) {
+      setProfile(profileData);
+      setUserName(profileData.name?.split(" ").slice(0, 2).join(" "));
+    }
+  }, [profileData]);
 
   const [isRecording, setIsRecording] = useState(false);
   // Load user name from storage
