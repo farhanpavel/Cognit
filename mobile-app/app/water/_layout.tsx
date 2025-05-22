@@ -19,11 +19,6 @@ const Chemistry = () => {
     statusBarHeight = insets.top
   },[insets])
 
-  const insets = useSafeAreaInsets();
-  useEffect(() => {
-    statusBarHeight = insets.top;
-  }, [insets]);
-
   const htmlContent = `
 <!DOCTYPE html>
 <html>

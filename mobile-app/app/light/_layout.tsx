@@ -5,6 +5,7 @@ import { View, StyleSheet } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import WebView from "react-native-webview"
 import { Button, Surface, Text, IconButton } from "react-native-paper"
+import { ArrowUp } from "lucide-react-native"
 
 const Light = () => {
   const webViewRef = useRef(null)
@@ -19,91 +20,100 @@ const Light = () => {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.18.0/matter.min.js"></script>
   <style>
-    body {
+    html, body {
+      height: 100%;
       margin: 0;
       padding: 0;
-      overflow: hidden;
       font-family: Arial, sans-serif;
       background-color: #f0f8ff;
+      overflow: auto;
     }
-    
+
     #canvas-container {
       position: relative;
-      width: 100%;
+      width: 100vw;
       height: 100vh;
+      min-height: 600px;
+      min-width: 320px;
+      overflow: auto;
+      box-sizing: border-box;
     }
-    
+
     canvas {
       display: block;
+      max-width: 100%;
+      height: auto;
     }
-    
+
     .control-panel {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       background: rgba(255, 255, 255, 0.9);
-      padding: 15px;
+      padding: 0px 15px;
       box-shadow: 0 2px 10px rgba(0,0,0,0.2);
       z-index: 100;
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease-in-out;
     }
-    
+
     .control-panel.expanded {
       max-height: 300px;
+      overflow-y: auto;
     }
-    
+
     .info-panel {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
       background: rgba(255, 255, 255, 0.9);
-      padding: 15px;
+      padding: 0px 15px;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.2);
       z-index: 100;
       max-height: 0;
       overflow: hidden;
       transition: max-height 0.3s ease-in-out;
     }
-    
+
     .info-panel.expanded {
       max-height: 300px;
+      overflow-y: auto;
     }
-    
+
     h2 {
       margin-top: 0;
       color: #20B486;
       font-size: 18px;
       margin-bottom: 15px;
     }
-    
+
     .input-group {
       margin-bottom: 15px;
     }
-    
+
     label {
       display: block;
       margin-bottom: 5px;
       font-weight: bold;
       color: #1C9777;
     }
-    
+
     input[type="range"] {
       width: 100%;
       margin-bottom: 5px;
       accent-color: #20B486;
     }
-    
+
     .current-value {
       display: flex;
       justify-content: space-between;
       font-size: 14px;
       color: #1C9777;
     }
-    
+
     .formula-section {
       margin-top: 15px;
       padding: 10px;
@@ -111,26 +121,26 @@ const Light = () => {
       border-radius: 5px;
       border-left: 4px solid #20B486;
     }
-    
+
     .formula {
       font-family: 'Courier New', monospace;
       font-weight: bold;
       margin-bottom: 5px;
       color: #17A97B;
     }
-    
+
     .result-row {
       display: flex;
       justify-content: space-between;
       margin-bottom: 5px;
       color: #333;
     }
-    
+
     .result-row span:first-child {
       color: #1C9777;
       font-weight: bold;
     }
-    
+
     .light-overlay {
       position: absolute;
       top: 0;
@@ -143,7 +153,7 @@ const Light = () => {
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-    
+
     .electron {
       position: absolute;
       width: 6px;
@@ -152,7 +162,7 @@ const Light = () => {
       border-radius: 50%;
       z-index: 5;
     }
-    
+
     button {
       background: #20B486;
       color: white;
@@ -163,11 +173,11 @@ const Light = () => {
       font-weight: bold;
       margin-top: 10px;
     }
-    
+
     button:hover {
       background: #17A97B;
     }
-    
+
     .panel-toggle {
       position: absolute;
       left: 50%;
@@ -181,11 +191,11 @@ const Light = () => {
       cursor: pointer;
       z-index: 101;
     }
-    
+
     .top-toggle {
       top: 0;
     }
-    
+
     .bottom-toggle {
       bottom: 0;
     }
@@ -231,9 +241,9 @@ const Light = () => {
       <button id="toggle-switch">Turn On/Off</button>
     </div>
     
-    <button class="panel-toggle top-toggle" id="toggle-controls">Show Controls</button>
     
     <div class="info-panel" id="info-panel">
+
       <h2>Electrical Information</h2>
       
       <div class="result-row">
@@ -272,7 +282,6 @@ const Light = () => {
       </div>
     </div>
     
-    <button class="panel-toggle bottom-toggle" id="toggle-info">Show Information</button>
   </div>
 
   <script>
@@ -412,8 +421,6 @@ const Light = () => {
       document.getElementById('current-slider').addEventListener('input', updateCurrent);
       document.getElementById('voltage-slider').addEventListener('input', updateVoltage);
       document.getElementById('toggle-switch').addEventListener('click', toggleCircuit);
-      document.getElementById('toggle-controls').addEventListener('click', toggleControlPanel);
-      document.getElementById('toggle-info').addEventListener('click', toggleInfoPanel);
       
       // Handle window resize
       window.addEventListener('resize', handleResize);
@@ -422,17 +429,14 @@ const Light = () => {
     // Toggle control panel
     function toggleControlPanel() {
       const controlPanel = document.getElementById('control-panel');
-      const toggleButton = document.getElementById('toggle-controls');
       
       if (controlPanel.classList.contains('expanded')) {
         controlPanel.classList.remove('expanded');
-        toggleButton.textContent = 'Show Controls';
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'CONTROLS_COLLAPSED'
         }));
       } else {
         controlPanel.classList.add('expanded');
-        toggleButton.textContent = 'Hide Controls';
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'CONTROLS_EXPANDED'
         }));
@@ -442,17 +446,14 @@ const Light = () => {
     // Toggle info panel
     function toggleInfoPanel() {
       const infoPanel = document.getElementById('info-panel');
-      const toggleButton = document.getElementById('toggle-info');
       
       if (infoPanel.classList.contains('expanded')) {
         infoPanel.classList.remove('expanded');
-        toggleButton.textContent = 'Show Information';
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'INFO_COLLAPSED'
         }));
       } else {
         infoPanel.classList.add('expanded');
-        toggleButton.textContent = 'Hide Information';
         window.ReactNativeWebView.postMessage(JSON.stringify({
           type: 'INFO_EXPANDED'
         }));
@@ -757,8 +758,6 @@ const Light = () => {
       toggleCircuit();
       const controlPanel = document.getElementById('control-panel');
       controlPanel.classList.remove('expanded');
-      const toggleButton = document.getElementById('toggle-controls');
-      toggleButton.textContent = 'Show Controls';
       window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'CONTROLS_COLLAPSED' }));
       const infoPanel = document.getElementById('info-panel');
       infoPanel.classList.remove('expanded');
@@ -813,6 +812,9 @@ const Light = () => {
           <Button mode="outlined" className="border-white" onPress={handleReset} style={styles.button} textColor="#FFFFFF" icon="refresh">
             Reset
           </Button>
+          <Button mode="contained" onPress={toggleInfoPanel} className="rounded-md" buttonColor="#FFFFFF"> 
+            <ArrowUp size={10} color="#20B486" strokeWidth={2} />           
+          </Button>
         </View>
       </Surface>
     </SafeAreaView>
@@ -828,7 +830,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: 15,
+    paddingHorizontal: 10,
     backgroundColor: "#20B486",
   },
   title: {
@@ -857,7 +859,8 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 8,
-    minWidth: 150,
+    minWidth: 100,
+    marginRight: 10,
   },
 })
 
