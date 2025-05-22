@@ -24,25 +24,28 @@ export default function Hero() {
       <div className="flex justify-around">
         <div className="flex  flex-col  mt-[10%]  w-[40%] space-y-5">
           <h1 className="text-5xl font-bold leading-[3.2rem]">
-            Make <span className="text-tertiary">Science</span> Accessible,
-            <span className="text-tertiary"> Engaging</span>, and{" "}
-            <span className="text-tertiary relative">
-              Inclusive
-              <svg
-                className="absolute -bottom-2 left-0 w-full"
-                viewBox="0 0 200 8"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M1 5.5C47.6667 1.83333 154.4 -2.6 199 5"
-                  stroke="#00C897"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-              </svg>
+            Up Your <span className="text-tertiary">Skills</span> to{" "}
+            <span className="text-tertiary">Advance</span> Your{" "}
+            <span className="text-tertiary">
+              {" "}
+              <span className="text-tertiary relative">
+                Career
+                <svg
+                  className="absolute -bottom-2 left-0 w-full"
+                  viewBox="0 0 200 8"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M1 5.5C47.6667 1.83333 154.4 -2.6 199 5"
+                    stroke="#00C897"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
             </span>{" "}
-            for All
+            Path
           </h1>
 
           <p className="text-lg text-[#646464]">
@@ -115,10 +118,10 @@ export default function Hero() {
           <h1 className="bg-tertiary rounded-full w-6 h-6 mx-10"></h1>
           <div className="bg-tertiary w-[420px] h-[420px] rounded-full flex items-center justify-center overflow-hidden mx-auto">
             <Image
-              src="/images/student2.png"
+              src="/images/student.png"
               width={300}
               height={300}
-              className="object-cover w-[90%] h-full mt-8 mr-12"
+              className="object-cover w-[80%] h-full mt-8"
               alt="student"
             />
           </div>
