@@ -1,9 +1,12 @@
 "use client"
 
 import { useEnrollResearchMutation, useGetMyProfileMutation, useGetResearchesQuery } from "@/modules/profile/api/profile.api"
+import { use } from "matter-js"
 import { useEffect, useState } from "react"
-import { View, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native"
+import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
 import { Surface, Text, IconButton, Divider, Button, Chip, Avatar } from "react-native-paper"
+import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry"
 
 // Types for research data
 interface Creator {
@@ -50,20 +53,19 @@ const ResearchProjects = () => {
   
   // Enroll in research
   const [enrollResearch, { isLoading: isEnrolling }] = useEnrollResearchMutation()
-  const [getProfile, { isLoading: isProfileLoading }] = useGetMyProfileMutation()
+  const [getProfile, {data:profileData, isLoading: isProfileLoading }] = useGetMyProfileMutation()
 
   // Fetch current user profile
   useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const profile = await getProfile(null).unwrap()
-        setCurrentUserId(profile.id)
-      } catch (error) {
-        console.error("Failed to fetch profile:", error)
-      }
-    }
-    fetchProfile()
+    getProfile(null)
   }, [])
+
+  useEffect(() => {
+    if (profileData) {
+      setCurrentUserId(profileData.id)
+      console.log("Current User ID:", profileData)
+    }
+  }, [profileData])
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id)

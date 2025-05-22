@@ -145,7 +145,7 @@ export default function HomeScreen() {
         try {
           // Send to Google Cloud Speech-to-Text API
           const apiResponse = await axios.post(
-            `https://speech.googleapis.com/v1/speech:recognize?key=`,
+            `https://speech.googleapis.com/v1/speech:recognize?key=AIzaSyBwEpoyI_eqDJP8du449xO-8bjd44Ki3rc`,
             {
               config: {
                 encoding: 'LINEAR16',
