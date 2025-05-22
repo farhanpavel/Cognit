@@ -22,33 +22,34 @@ export default function Hero() {
       <div className="flex justify-around">
         <div className="flex  flex-col  mt-[10%]  w-[40%] space-y-5">
           <h1 className="text-5xl font-bold leading-[3.2rem]">
-            Up Your <span className="text-tertiary">Skills</span> to{" "}
-            <span className="text-tertiary">Advance</span> Your{" "}
-            <span className="text-tertiary">
-              {" "}
-              <span className="text-tertiary relative">
-                Career
-                <svg
-                  className="absolute -bottom-2 left-0 w-full"
-                  viewBox="0 0 200 8"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M1 5.5C47.6667 1.83333 154.4 -2.6 199 5"
-                    stroke="#00C897"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              </span>
+            Make <span className="text-tertiary">Science</span> Accessible,
+            <span className="text-tertiary"> Engaging</span>, and{" "}
+            <span className="text-tertiary relative">
+              Inclusive
+              <svg
+                className="absolute -bottom-2 left-0 w-full"
+                viewBox="0 0 200 8"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M1 5.5C47.6667 1.83333 154.4 -2.6 199 5"
+                  stroke="#00C897"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+              </svg>
             </span>{" "}
-            Path
+            for All
           </h1>
+
           <p className="text-lg text-[#646464]">
-            lorem ipsum dolor sit, amet consectetur adipisicing elit. Quibusdam,
-            culpa.
+            Cognit is a mobile platform built to break barriers in science
+            education across Bangladesh. From interactive simulations to
+            voice-assisted navigation, — we’re making science learning
+            inclusive, fun, and impactful for everyone.
           </p>
+
           <div className="space-x-4">
             <button className="bg-tertiary px-6 py-2 rounded-sm text-white font-medium">
               Get Started
@@ -67,7 +68,7 @@ export default function Hero() {
               <div className="p-2 rounded-lg bg-[#FFF6E9]">
                 <Briefcase className="text-[#F1BF5A] h-5 w-5" />
               </div>
-              <span className="text-sm font-medium">Career-Oriented</span>
+              <span className="text-sm font-medium">Science for All</span>
             </motion.div>
 
             <motion.div
@@ -79,7 +80,7 @@ export default function Hero() {
               <div className="p-2 rounded-lg bg-[#FFEEEA]">
                 <Volume1 className="text-[#F4876B] h-5 w-5" />
               </div>
-              <span className="text-sm font-medium">Public Speaking</span>
+              <span className="text-sm font-medium">Visual Learning</span>
             </motion.div>
 
             <motion.div
@@ -102,10 +103,10 @@ export default function Hero() {
           <h1 className="bg-tertiary rounded-full w-6 h-6 mx-10"></h1>
           <div className="bg-tertiary w-[420px] h-[420px] rounded-full flex items-center justify-center overflow-hidden mx-auto">
             <Image
-              src="/images/student.png"
+              src="/images/student2.png"
               width={300}
               height={300}
-              className="object-cover w-[80%] h-full mt-8"
+              className="object-cover w-[90%] h-full mt-8 mr-12"
               alt="student"
             />
           </div>

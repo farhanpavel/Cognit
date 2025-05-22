@@ -16,27 +16,27 @@ export default function Feature() {
     [
       {
         icon: <LayoutGrid className="w-8 h-8" />,
-        title: "Interaction Design",
+        title: "Interactive Simulations",
         description:
-          "Lessons on design that cover the most recent developments.",
+          "Bring core science concepts to life with touch-friendly, localized, and low-bandwidth simulations — designed for both urban and rural learners.",
         color: "bg-emerald-400",
         textColor: "text-white",
         iconColor: "text-white",
       },
       {
         icon: <MonitorSmartphone className="w-8 h-8" />,
-        title: "UX Design Course",
+        title: "Voice-First Navigation",
         description:
-          "Classes in development that cover the most recent advancements in web.",
+          "Navigate the app completely hands-free. Optimized for learners with disabilities or literacy challenges — available in Bangla and local dialects.",
         color: "bg-white",
         textColor: "text-gray-800",
         iconColor: "text-blue-400",
       },
       {
         icon: <LineChart className="w-8 h-8" />,
-        title: "User Interface Design",
+        title: "Student-Led Research",
         description:
-          "User Interface Design courses that cover the most recent trends",
+          "Empower students to collect and contribute real data — from biodiversity logs to air quality — and join live citizen science missions.",
         color: "bg-white",
         textColor: "text-gray-800",
         iconColor: "text-pink-400",
@@ -45,25 +45,27 @@ export default function Feature() {
     [
       {
         icon: <Palette className="w-8 h-8" />,
-        title: "Visual Design",
-        description: "Learn the principles of visual design and color theory.",
+        title: "Offline-First Learning",
+        description:
+          "Access science modules, simulations, and quizzes even without internet. Perfect for students in low-connectivity zones.",
         color: "bg-emerald-400",
         textColor: "text-white",
         iconColor: "text-white",
       },
       {
         icon: <MonitorSmartphone className="w-8 h-8" />,
-        title: "Mobile App Design",
-        description: "Create intuitive and engaging mobile app experiences.",
+        title: "Science in Your Language",
+        description:
+          "Break the language barrier. Learn science in clear Bangla, regional dialects, or audio-visual formats — no reading required.",
         color: "bg-white",
         textColor: "text-gray-800",
         iconColor: "text-blue-400",
       },
       {
         icon: <LineChart className="w-8 h-8" />,
-        title: "Data Visualization",
+        title: "Critical Thinking Tools",
         description:
-          "Learn to present complex data in intuitive visual formats.",
+          "Learn how to spot fake science. Built-in modules teach students how to validate information, analyze claims, and think like scientists.",
         color: "bg-white",
         textColor: "text-gray-800",
         iconColor: "text-pink-400",
@@ -72,27 +74,27 @@ export default function Feature() {
     [
       {
         icon: <LayoutGrid className="w-8 h-8" />,
-        title: "Design Systems",
+        title: "Gamified Quizzes & Badges",
         description:
-          "Build scalable and consistent design systems for products.",
+          "Make learning addictive. Earn badges, level up, and compete with friends in science quizzes that adapt to your pace.",
         color: "bg-emerald-400",
         textColor: "text-white",
         iconColor: "text-white",
       },
       {
         icon: <MonitorSmartphone className="w-8 h-8" />,
-        title: "Responsive Design",
+        title: "Push Notifications for Learning",
         description:
-          "Create websites that work beautifully across all devices.",
+          "Get timely nudges for new modules, research opportunities, and science days — keeping students curious and consistent.",
         color: "bg-white",
         textColor: "text-gray-800",
         iconColor: "text-blue-400",
       },
       {
         icon: <LineChart className="w-8 h-8" />,
-        title: "Design Thinking",
+        title: "Inclusive by Design",
         description:
-          "Apply design thinking methodology to solve complex problems.",
+          "Built with WCAG accessibility standards. Supports screen readers, voice control, large type, and low-vision contrast modes.",
         color: "bg-white",
         textColor: "text-gray-800",
         iconColor: "text-pink-400",
@@ -124,10 +126,10 @@ export default function Feature() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-16">
       <div className="text-center mb-12">
-        <p className="text-tertiary font-medium mb-2  ">Our Services</p>
+        <p className="text-tertiary font-medium mb-2  ">Our Goal</p>
         <h2 className="text-3xl md:text-4xl font-bold max-w-2xl mx-auto">
-          Fostering a playful & <span className="text-tertiary">engaging</span>{" "}
-          learning environment
+          Making science accessible, visual, and{" "}
+          <span className="text-tertiary">fun</span> for every learner
         </h2>
       </div>
 
