@@ -8,7 +8,8 @@ import {
   unsubscribeTokenFromTopic,
   getNotifications,
   userLogin,
-  userRegister
+  userRegister,
+  getProfile
 } from "../controllers/userController.js";
 import express from "express";
 import { jwtAuthentication } from "../middlewares/authMiddleware.js";
@@ -26,6 +27,6 @@ userRouter.get("/get-notification", getNotifications);
 userRouter.post("/login", userLogin);
 userRouter.post("/register", userRegister);
 userRouter.post("/refresh", userLogin);
-userRouter.get("/profile", jwtAuthentication, getUser);
+userRouter.get("/profile", jwtAuthentication, getProfile);
 
 export default userRouter;

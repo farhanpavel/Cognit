@@ -47,15 +47,6 @@ export const getProfile = async (req, res) => {
         where: {
         id: userId,
         },
-        select: {
-        id: true,
-        email: true,
-        name: true,
-        role: true,
-        status: true,
-        createdAt: true,
-        updatedAt: true,
-        },
     });
     if (!userData) {
         return res.status(404).json({ message: "User not found" });
