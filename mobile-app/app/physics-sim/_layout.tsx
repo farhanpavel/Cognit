@@ -1,7 +1,7 @@
 "use client"
 
 import { useRef } from "react"
-import { View, Button, StyleSheet } from "react-native"
+import { View, StyleSheet } from "react-native"
 import { SafeAreaView } from "react-native-safe-area-context"
 import WebView from "react-native-webview"
 

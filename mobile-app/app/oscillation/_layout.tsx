@@ -78,11 +78,6 @@ const PendulumSwing = () => {
                 <p>Angular velocity: <span id="velocity">0</span> rad/s</p>
             </div>
             <canvas id="canvas"></canvas>
-            <div class="controls">
-                <button id="swingBtn">Swing</button>
-                <button id="fastSwingBtn">Fast Swing</button>
-                <button id="resetBtn">Reset</button>
-            </div>
             <script>
                 // Matter.js module aliases
                 const Engine = Matter.Engine,
@@ -190,11 +185,6 @@ const PendulumSwing = () => {
                     Body.setVelocity(bob, { x: 0, y: 0 });
                     Body.setAngularVelocity(bob, 0);
                 }
-
-                // Button event listeners
-                document.getElementById('swingBtn').addEventListener('click', swingPendulum);
-                document.getElementById('fastSwingBtn').addEventListener('click', fastSwingPendulum);
-                document.getElementById('resetBtn').addEventListener('click', resetPendulum);
 
                 // Update info panel
                 function updateInfo() {
