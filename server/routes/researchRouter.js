@@ -19,7 +19,7 @@ researchRouter.put("/meetings", jwtAuthentication, updateMeeting);
 researchRouter.get("/", jwtAuthentication, getMeeting);
 researchRouter.get("/get/all", getResearches);
 researchRouter.get("/enroll/:id", jwtAuthentication, enrollResearch);
-researchRouter.get("/get/:id", jwtAuthentication, getResearchById);
+researchRouter.get("/get/pavel/zunaid/:id", jwtAuthentication, getResearchById);
 researchRouter.get("/get/myendrollments/all", jwtAuthentication, getMyEndrollments);
 
 export default researchRouter;

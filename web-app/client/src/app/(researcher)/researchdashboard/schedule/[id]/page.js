@@ -51,8 +51,8 @@ import {
 import Cookies from "js-cookie";
 import { url } from "@/components/Url/page";
 
-const DetailsPage = ({ params }) => {
-    const [participants, setParticipants] = useState([]);
+export default function ParticipantManagement({ params }) {
+  const [participants, setParticipants] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -61,6 +61,7 @@ const DetailsPage = ({ params }) => {
   const [selectedParticipants, setSelectedParticipants] = useState([]);
   const [viewMode, setViewMode] = useState("list");
   const { id } = params;
+
   // Fetch participants data from API
   useEffect(() => {
     const token = Cookies.get("AccessToken");
@@ -68,7 +69,7 @@ const DetailsPage = ({ params }) => {
       try {
         setLoading(true);
         const response = await fetch(
-          `${url}/api/research/get/myendrollments/all/${id}`,
+          `${url}/api/research/get/pavel/zunaid/${id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -83,21 +84,23 @@ const DetailsPage = ({ params }) => {
         const data = await response.json();
 
         // Transform API data to match our component's expected format
-        const formattedParticipants = data.map((user, index) => ({
-          id: user.id || index.toString(),
-          name: user.name || "Unknown User",
-          email: user.email || "No email provided",
-          phone: user.phone || "Not provided",
-          role: user.role || "STUDENT",
-          institution: user.institution || "Not specified",
-          status: "active", // Default status
-          invitationDate: new Date(user.createdAt),
-          acceptedDate: new Date(user.createdAt),
-          completionDate: null,
-          projects: ["Research Project"], // Default project
-          contributions: 0,
-          lastActive: new Date(user.updatedAt || user.createdAt),
-        }));
+        const formattedParticipants = data.dataCollectors.map(
+          (user, index) => ({
+            id: user.id || index.toString(),
+            name: user.name || "Unknown User",
+            email: user.email || "No email provided",
+            phone: user.phone || "Not provided",
+            role: user.role || "STUDENT",
+            institution: user.institution || "Not specified",
+            status: "active", // Default status
+            invitationDate: new Date(user.createdAt),
+            acceptedDate: new Date(user.createdAt),
+            completionDate: null,
+            projects: ["Research Project"], // Default project
+            contributions: 0,
+            lastActive: new Date(user.updatedAt || user.createdAt),
+          })
+        );
 
         setParticipants(formattedParticipants);
         setError(null);
@@ -115,8 +118,9 @@ const DetailsPage = ({ params }) => {
     };
 
     fetchParticipants();
-  }, []);
+  }, [id]);
 
+  // Rest of the component remains the same...
   // Filter participants based on search query and selected status
   const filteredParticipants = participants.filter((participant) => {
     const matchesSearch =
