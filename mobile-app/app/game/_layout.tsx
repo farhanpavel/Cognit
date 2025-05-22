@@ -1,19 +1,15 @@
-"use client";
+"use client"
 
-import { useRef, useState } from "react";
-import {
-  View,
-  StyleSheet,
-  Text,
-  SafeAreaView,
-  TouchableOpacity
-} from "react-native";
-import WebView from "react-native-webview";
+import { useRef, useState } from "react"
+import { View, StyleSheet } from "react-native"
+import { SafeAreaView } from "react-native-safe-area-context"
+import WebView from "react-native-webview"
+import { Button, Text, Surface } from "react-native-paper"
 
 export default function DataStructureGame() {
-  const webViewRef = useRef(null);
-  const [currentLevel, setCurrentLevel] = useState(1);
-  const [showInstructions, setShowInstructions] = useState(true);
+  const webViewRef = useRef(null)
+  const [currentLevel, setCurrentLevel] = useState(1)
+  const [showInstructions, setShowInstructions] = useState(true)
 
   // HTML content with structured data visualization
   const htmlContent = `
@@ -28,7 +24,7 @@ export default function DataStructureGame() {
           margin: 0;
           padding: 0;
           font-family: Arial, sans-serif;
-          background: #f0f4f8;
+          background: #f0f8ff;
           overflow: hidden;
           touch-action: manipulation;
         }
@@ -39,7 +35,7 @@ export default function DataStructureGame() {
           flex-direction: column;
         }
         .header {
-          background: #2c3e50;
+          background: #20B486;
           color: white;
           padding: 10px;
           text-align: center;
@@ -54,7 +50,7 @@ export default function DataStructureGame() {
           overflow: hidden;
         }
         .instructions {
-          background: rgba(44, 62, 80, 0.9);
+          background: rgba(32, 180, 134, 0.9);
           color: white;
           padding: 15px;
           border-radius: 8px;
@@ -67,7 +63,8 @@ export default function DataStructureGame() {
           display: flex;
           flex-direction: column;
           gap: 20px;
-          overflow: hidden;
+          overflow-y: auto;
+          -webkit-overflow-scrolling: touch;
         }
         .element-container {
           display: flex;
@@ -82,7 +79,7 @@ export default function DataStructureGame() {
           display: flex;
           align-items: center;
           justify-content: center;
-          background: #3498db;
+          background: #20B486;
           color: white;
           font-weight: bold;
           border-radius: 8px;
@@ -100,7 +97,7 @@ export default function DataStructureGame() {
         }
         .dropzone {
           background: rgba(236, 240, 241, 0.8);
-          border: 2px dashed #7f8c8d;
+          border: 2px dashed #1C9777;
           border-radius: 8px;
           display: flex;
           align-items: center;
@@ -109,18 +106,18 @@ export default function DataStructureGame() {
         }
         .dropzone.highlight {
           background: rgba(46, 204, 113, 0.2);
-          border-color: #2ecc71;
+          border-color: #17A97B;
         }
         .dropzone.occupied {
           border-style: solid;
-          border-color: #3498db;
+          border-color: #20B486;
         }
         .success-message {
           position: absolute;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          background: rgba(39, 174, 96, 0.9);
+          background: rgba(28, 151, 119, 0.9);
           color: white;
           padding: 20px;
           border-radius: 10px;
@@ -129,7 +126,7 @@ export default function DataStructureGame() {
           box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
         .button {
-          background: #2980b9;
+          background: #17A97B;
           color: white;
           border: none;
           padding: 10px 20px;
@@ -139,13 +136,13 @@ export default function DataStructureGame() {
           margin-top: 15px;
         }
         .button:hover {
-          background: #3498db;
+          background: #20B486;
         }
         .score {
           position: absolute;
           top: 10px;
           right: 10px;
-          background: rgba(44, 62, 80, 0.8);
+          background: rgba(32, 180, 134, 0.8);
           color: white;
           padding: 5px 10px;
           border-radius: 15px;
@@ -161,7 +158,7 @@ export default function DataStructureGame() {
         .array-cell {
           width: 60px;
           height: 60px;
-          border: 2px solid #34495e;
+          border: 2px solid #1C9777;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -173,7 +170,7 @@ export default function DataStructureGame() {
           position: absolute;
           bottom: -25px;
           font-size: 14px;
-          color: #7f8c8d;
+          color: #1C9777;
         }
         
         /* Linked List specific styles */
@@ -186,16 +183,18 @@ export default function DataStructureGame() {
         .linked-list-workspace {
           display: flex;
           align-items: center;
-          justify-content: center;
+          justify-content: flex-start;
           width: 100%;
           position: relative;
           min-height: 100px;
+          overflow-x: auto;
+          padding: 10px 0;
         }
         .node {
           width: 60px;
           height: 60px;
           border-radius: 50%;
-          background: #3498db;
+          background: #20B486;
           color: white;
           display: flex;
           align-items: center;
@@ -212,7 +211,7 @@ export default function DataStructureGame() {
         .pointer {
           width: 40px;
           height: 4px;
-          background: #e74c3c;
+          background: #1C9777;
           position: relative;
         }
         .pointer:after {
@@ -220,7 +219,7 @@ export default function DataStructureGame() {
           position: absolute;
           right: 0;
           top: -8px;
-          border-left: 12px solid #e74c3c;
+          border-left: 12px solid #1C9777;
           border-top: 10px solid transparent;
           border-bottom: 10px solid transparent;
         }
@@ -228,19 +227,20 @@ export default function DataStructureGame() {
         /* Stack specific styles */
         .stack-container {
           width: 200px;
-          margin: 0 auto;
-          border-left: 4px solid #34495e;
-          border-right: 4px solid #34495e;
-          border-bottom: 4px solid #34495e;
+          margin: 0 auto 40px auto;
+          border-left: 4px solid #1C9777;
+          border-right: 4px solid #1C9777;
+          border-bottom: 4px solid #1C9777;
           display: flex;
           flex-direction: column-reverse;
           min-height: 300px;
+          max-height: 400px;
           position: relative;
         }
         .stack-element {
           width: 100%;
           height: 50px;
-          background: #3498db;
+          background: #20B486;
           color: white;
           display: flex;
           align-items: center;
@@ -252,7 +252,7 @@ export default function DataStructureGame() {
           width: 100%;
           height: 50px;
           background: rgba(236, 240, 241, 0.5);
-          border-bottom: 1px dashed #7f8c8d;
+          border-bottom: 1px dashed #1C9777;
         }
         
         /* Binary Tree specific styles */
@@ -281,7 +281,7 @@ export default function DataStructureGame() {
           width: 60px;
           height: 60px;
           border-radius: 50%;
-          background: #3498db;
+          background: #20B486;
           color: white;
           display: flex;
           align-items: center;
@@ -291,7 +291,7 @@ export default function DataStructureGame() {
         }
         .tree-edge {
           position: absolute;
-          background: #7f8c8d;
+          background: #1C9777;
           width: 3px;
           transform-origin: top center;
           z-index: -1;
@@ -301,7 +301,7 @@ export default function DataStructureGame() {
           height: 60px;
           border-radius: 50%;
           background: rgba(236, 240, 241, 0.5);
-          border: 2px dashed #7f8c8d;
+          border: 2px dashed #1C9777;
         }
       </style>
     </head>
@@ -836,8 +836,6 @@ export default function DataStructureGame() {
           
           const rightDropzone = document.createElement('div');
           rightDropzone.className = 'tree-dropzone dropzone';
-          rightDropzone.dataset.position = 'right';
-          
           rightNodeContainer.appendChild(rightDropzone);
           
           level2.appendChild(leftNodeContainer);
@@ -852,8 +850,6 @@ export default function DataStructureGame() {
           
           const leftLeftDropzone = document.createElement('div');
           leftLeftDropzone.className = 'tree-dropzone dropzone';
-          leftLeftDropzone.dataset.position = 'leftLeft';
-          
           leftLeftNodeContainer.appendChild(leftLeftDropzone);
           
           const leftRightNodeContainer = document.createElement('div');
@@ -1040,48 +1036,49 @@ export default function DataStructureGame() {
       </script>
     </body>
     </html>
-  `;
+  `
 
   // Handle messages from WebView
   const handleMessage = (event) => {
     try {
-      const message = JSON.parse(event.nativeEvent.data);
+      const message = JSON.parse(event.nativeEvent.data)
       if (message.type === "LEVEL_CHANGE") {
-        setCurrentLevel(message.level);
+        setCurrentLevel(message.level)
       }
     } catch (error) {
-      console.error("Error parsing message from WebView:", error);
+      console.error("Error parsing message from WebView:", error)
     }
-  };
+  }
 
   // Send message to WebView
   const changeLevel = (level) => {
+    setCurrentLevel(level) // Update the React state immediately
     webViewRef.current?.injectJavaScript(`
       window.postMessage(JSON.stringify({
         type: 'CHANGE_LEVEL',
         level: ${level}
       }), '*');
       true;
-    `);
-  };
+    `)
+  }
 
   const toggleTutorial = () => {
-    setShowInstructions(!showInstructions);
+    setShowInstructions(!showInstructions)
     webViewRef.current?.injectJavaScript(`
       window.postMessage(JSON.stringify({
         type: 'TOGGLE_TUTORIAL',
         show: ${!showInstructions}
       }), '*');
       true;
-    `);
-  };
+    `)
+  }
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+      <Surface style={styles.header} elevation={4}>
         <Text style={styles.title}>Data Structure Learning</Text>
         <Text style={styles.levelText}>Level {currentLevel}/4</Text>
-      </View>
+      </Surface>
 
       <View style={styles.webViewContainer}>
         <WebView
@@ -1092,98 +1089,88 @@ export default function DataStructureGame() {
           domStorageEnabled={true}
           startInLoadingState={true}
           style={styles.webView}
+          scalesPageToFit={true}
+          scrollEnabled={true}
         />
       </View>
 
-      <View style={styles.controls}>
+      <Surface style={styles.controls} elevation={4}>
         <View style={styles.levelButtons}>
           {[1, 2, 3, 4].map((level) => (
-            <TouchableOpacity
+            <Button
               key={level}
-              style={[
-                styles.levelButton,
-                currentLevel === level && styles.activeLevelButton
-              ]}
+              mode={currentLevel === level ? "contained" : "outlined"}
               onPress={() => changeLevel(level)}
+              style={styles.levelButton}
+              buttonColor={currentLevel === level ? "#20B486" : "transparent"}
+              textColor={currentLevel === level ? "white" : "#20B486"}
+              compact
             >
-              <Text style={styles.levelButtonText}>{level}</Text>
-            </TouchableOpacity>
+              {level}
+            </Button>
           ))}
         </View>
 
-        <TouchableOpacity style={styles.helpButton} onPress={toggleTutorial}>
-          <Text style={styles.helpButtonText}>
-            {showInstructions ? "Hide Help" : "Show Help"}
-          </Text>
-        </TouchableOpacity>
-      </View>
+        <Button
+          mode="contained"
+          onPress={toggleTutorial}
+          style={styles.helpButton}
+          buttonColor="#17A97B"
+          icon={showInstructions ? "eye-off" : "eye"}
+        >
+          {showInstructions ? "Hide Help" : "Show Help"}
+        </Button>
+      </Surface>
     </SafeAreaView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f4f8"
+    backgroundColor: "#f0f8ff",
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 15,
-    backgroundColor: "#2c3e50"
+    backgroundColor: "#20B486",
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white"
+    color: "white",
   },
   levelText: {
     fontSize: 16,
-    color: "#3498db",
-    fontWeight: "bold"
+    color: "white",
+    fontWeight: "bold",
   },
   webViewContainer: {
     flex: 1,
-    overflow: "hidden"
+    overflow: "hidden",
   },
   webView: {
-    backgroundColor: "transparent"
+    backgroundColor: "transparent",
   },
   controls: {
     padding: 15,
-    backgroundColor: "#2c3e50",
+    backgroundColor: "white",
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
   },
   levelButtons: {
-    flexDirection: "row"
+    flexDirection: "row",
+    gap: 8,
   },
   levelButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: "#34495e",
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 10
-  },
-  activeLevelButton: {
-    backgroundColor: "#3498db"
-  },
-  levelButtonText: {
-    color: "white",
-    fontWeight: "bold"
+    minWidth: 40,
+    borderRadius: 8,
+    borderColor: "#20B486",
   },
   helpButton: {
-    backgroundColor: "#34495e",
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 5
+    borderRadius: 8,
   },
-  helpButtonText: {
-    color: "white",
-    fontWeight: "bold"
-  }
-});
+})
