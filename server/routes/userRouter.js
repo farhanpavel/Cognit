@@ -3,6 +3,7 @@ import {
   getUserByroleFalse,
   getUserByroleTrue,
   makeNotification,
+  sendNotificationWData,
   subscribeTokenToTopic,
   unsubscribeTokenFromTopic,
   userLogin,
@@ -18,6 +19,7 @@ userRouter.get("/:role/:id/active", getUserByroleTrue);
 userRouter.post("/subscribe-to-topic", subscribeTokenToTopic);
 userRouter.post("/unsubscribe-from-topic", unsubscribeTokenFromTopic);
 userRouter.post("/create-notification", makeNotification);
+userRouter.post("/send-notification", sendNotificationWData);
 
 userRouter.post("/login", userLogin);
 userRouter.post("/register", userRegister);

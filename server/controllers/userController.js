@@ -343,3 +343,14 @@ export const sendNotification = async (
       console.error("Error sending data message:", error);
     });
 };
+
+export const sendNotificationWData = async (req, res) => {
+  const { title, body, topic, data } = req.body;
+  const notification = {
+    title: title,
+    body: body,
+  };
+
+  sendNotification(notification, topic, data, "https://bidyarthi.vercel.app");
+  res.status(200).json({ message: "Notification sent successfully" });
+};
