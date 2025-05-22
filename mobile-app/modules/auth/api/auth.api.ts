@@ -14,7 +14,7 @@ const authApi = api.injectEndpoints({
       })
     }),
 
-    register: builder.mutation<AuthResponse, AuthCredentials>({
+    register: builder.mutation<any, any>({
       query: (data: AuthCredentials) => ({
         url: "/api/user/register",
         method: "POST",

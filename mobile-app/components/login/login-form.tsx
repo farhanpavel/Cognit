@@ -112,6 +112,11 @@ const LoginForm = (props: LoginFormProps) => {
     try {
       // Execute login mutation
       const loginResponse = await login({ email, password }).unwrap();
+      if(loginResponse.role!=="STUDENT") {
+        setErrorMessage("This account is not a student account");
+        shakeError();
+        return;
+      }
 
       // Store tokens
       await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
@@ -249,6 +254,25 @@ const LoginForm = (props: LoginFormProps) => {
           </View>
         )}
 
+           {/* "Don't have an account? Register" link for mobile view (optional duplicate, remove if not needed) */}
+        <View className="flex items-center mt-4 mb-4">
+          <View className="flex flex-row items-center">
+            <Text variant="bodyMedium" className="text-gray-600">
+              Don't have an account?
+            </Text>
+            <TouchableOpacity onPress={() => router.push("/register")}>
+              <Text
+                variant="bodyMedium"
+                className="font-bold ml-2"
+                style={{ color: primaryColor }}
+              >
+                Register
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+
         {/* Login Button */}
         <CustomButton
           className="mt-6 rounded-xl py-1"
@@ -259,6 +283,7 @@ const LoginForm = (props: LoginFormProps) => {
           <Text className="font-bold text-white text-base">Sign In</Text>
         </CustomButton>
 
+     
         {/* Social Login Options - Compact Version */}
         <View className="mt-4 items-center">
           <View className="flex-row items-center w-full mb-4">
@@ -266,6 +291,8 @@ const LoginForm = (props: LoginFormProps) => {
             <Text className="mx-3 text-gray-500 text-sm">or continue with</Text>
             <Divider style={{ flex: 1, height: 1 }} />
           </View>
+
+
 
           <View className="flex-row justify-center space-x-4 w-full">
             <TouchableOpacity
@@ -291,24 +318,6 @@ const LoginForm = (props: LoginFormProps) => {
                 size={20}
                 color="#4267B2"
               />
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Register Link */}
-        <View className="flex items-center mt-4 mb-4">
-          <View className="flex flex-row items-center">
-            <Text variant="bodyMedium" className="text-gray-600">
-              Don't have an account?
-            </Text>
-            <TouchableOpacity onPress={() => router.push("/register")}>
-              <Text
-                variant="bodyMedium"
-                className="font-bold ml-2"
-                style={{ color: primaryColor }}
-              >
-                Register
-              </Text>
             </TouchableOpacity>
           </View>
         </View>
