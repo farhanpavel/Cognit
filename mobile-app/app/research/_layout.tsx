@@ -1,7 +1,7 @@
 "use client"
 
-import { useEnrollResearchMutation, useGetResearchesQuery } from "@/modules/profile/api/profile.api"
-import { useState } from "react"
+import { useEnrollResearchMutation, useGetMyProfileMutation, useGetResearchesQuery } from "@/modules/profile/api/profile.api"
+import { useEffect, useState } from "react"
 import { View, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity, ActivityIndicator } from "react-native"
 import { Surface, Text, IconButton, Divider, Button, Chip, Avatar } from "react-native-paper"
 
@@ -43,12 +43,27 @@ interface Research {
 
 const ResearchProjects = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null)
 
   // Fetch research data
   const { data: researches, isLoading, isError, refetch } = useGetResearchesQuery()
-
+  
   // Enroll in research
   const [enrollResearch, { isLoading: isEnrolling }] = useEnrollResearchMutation()
+  const [getProfile, { isLoading: isProfileLoading }] = useGetMyProfileMutation()
+
+  // Fetch current user profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const profile = await getProfile(null).unwrap()
+        setCurrentUserId(profile.id)
+      } catch (error) {
+        console.error("Failed to fetch profile:", error)
+      }
+    }
+    fetchProfile()
+  }, [])
 
   const toggleExpand = (id: string) => {
     setExpandedId(expandedId === id ? null : id)
@@ -62,6 +77,13 @@ const ResearchProjects = () => {
     } catch (error) {
       console.error("Failed to enroll:", error)
     }
+  }
+
+  // Check if current user is enrolled in a research
+  const isUserEnrolled = (research: Research) => {
+    return currentUserId 
+      ? research.dataCollectors.some(collector => collector.id === currentUserId)
+      : false
   }
 
   // Format date to readable format
@@ -92,7 +114,7 @@ const ResearchProjects = () => {
     }
   }
 
-  if (isLoading) {
+  if (isLoading || isProfileLoading) {
     return (
       <SafeAreaView style={styles.container}>
         <Surface style={styles.header} elevation={2}>
@@ -138,6 +160,7 @@ const ResearchProjects = () => {
         <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollContent}>
           {researches?.map((research: Research) => {
             const statusColor = getStatusColor(research.schedule)
+            const enrolled = isUserEnrolled(research)
 
             return (
               <Surface key={research.id} style={styles.researchCard} elevation={2}>
@@ -177,9 +200,8 @@ const ResearchProjects = () => {
                     <Avatar.Text
                       size={24}
                       label={research.creator.name.substring(0, 2).toUpperCase()}
-                      backgroundColor="#20B486"
                       color="white"
-                      style={styles.creatorAvatar}
+                      style={[styles.creatorAvatar, { backgroundColor: "#20B486" }]}
                     />
                     <Text style={styles.creatorName}>{research.creator.name}</Text>
                     <Text style={styles.creatorRole}>{research.creator.role}</Text>
@@ -220,7 +242,7 @@ const ResearchProjects = () => {
                                 <Avatar.Text
                                   size={24}
                                   label={participant.name.substring(0, 2).toUpperCase()}
-                                  backgroundColor="#A8E2D0"
+                                  style={{ backgroundColor: "#A8E2D0" }}
                                   color="#1C9777"
                                 />
                                 <Text style={styles.participantName}>{participant.name}</Text>
@@ -238,8 +260,9 @@ const ResearchProjects = () => {
                             style={styles.actionButton}
                             textColor="#20B486"
                             icon="video-outline"
+                            disabled={!enrolled || research.schedule === "CANCEL"}
                           >
-                            Join Meeting
+                            {enrolled ? "Join Meeting" : "Enroll to access"}
                           </Button>
                         )}
                         {research.formLink && (
@@ -249,8 +272,9 @@ const ResearchProjects = () => {
                             style={styles.actionButton}
                             textColor="#20B486"
                             icon="file-document-outline"
+                            disabled={!enrolled || research.schedule === "CANCEL"}
                           >
-                            Open Form
+                            {enrolled ? "Open Form" : "Enroll to access"}
                           </Button>
                         )}
                       </View>
@@ -259,12 +283,12 @@ const ResearchProjects = () => {
                         mode="contained"
                         onPress={() => handleEnroll(research.id)}
                         style={styles.enrollButton}
-                        buttonColor="#20B486"
-                        icon="hand-wave"
+                        buttonColor={enrolled ? "#A8E2D0" : "#20B486"}
+                        icon={enrolled ? "check" : "hand-wave"}
                         loading={isEnrolling}
-                        disabled={isEnrolling || research.schedule === "CANCEL"}
+                        disabled={isEnrolling || enrolled || research.schedule === "CANCEL"}
                       >
-                        {isEnrolling ? "Enrolling..." : "I'm Interested"}
+                        {isEnrolling ? "Enrolling..." : enrolled ? "Already Enrolled" : "I'm Interested"}
                       </Button>
                     </View>
                   )}
