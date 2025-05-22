@@ -23,6 +23,8 @@ model User {
   // Relations
 
   createdMeetings Meeting[] @relation("MeetingCreator")
+
+  meeting Meeting[] @relation("MeetingDataCollector")
 }
 
 enum Role {
@@ -40,6 +42,8 @@ model Meeting {
   duration    Int
   agenda      String?
   formLink    String
+
+  dataCollectors User[] @relation("MeetingDataCollector")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   creator     User     @relation("MeetingCreator", fields: [creatorId], references: [id])
