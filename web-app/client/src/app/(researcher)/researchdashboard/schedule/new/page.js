@@ -50,38 +50,6 @@ export default function ResearchScheduler() {
     formLink: "",
   });
 
-  // Fetch user's projects for the dropdown
-  // useEffect(() => {
-  //   const fetchProjects = async () => {
-  //     try {
-  //       const token = Cookies.get("AccessToken")
-  //       if (!token) {
-  //         router.push("/login")
-  //         return
-  //       }
-
-  //       const response = await fetch(`${url}/api/research/projects`, {
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       })
-
-  //       if (!response.ok) {
-  //         throw new Error("Failed to fetch projects")
-  //       }
-
-  //       const data = await response.json()
-  //       const allProjects = [...data.ownedProjects, ...data.participatingProjects]
-  //       setProjects(allProjects)
-  //     } catch (error) {
-  //       console.error("Error fetching projects:", error)
-  //       alert("Failed to load projects. Please try again.")
-  //     }
-  //   }
-
-  //   fetchProjects()
-  // }, [router])
-
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -89,24 +57,6 @@ export default function ResearchScheduler() {
 
   const handleSelectChange = (name, value) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const generateMeetLink = async () => {
-    setIsLoading(true);
-
-    try {
-      // This is a simplified version - in a real app, you'd integrate with Google Meet API
-      // For now, we'll generate a mock link
-      const randomId = Math.random().toString(36).substring(2, 10);
-      const meetLink = `https://meet.google.com/${randomId}`;
-      setGeneratedMeetLink(meetLink);
-      alert("Google Meet link generated successfully!");
-    } catch (error) {
-      console.error("Error generating meeting link:", error);
-      alert("Failed to generate meeting link. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
   };
 
   const copyToClipboard = (text) => {
@@ -314,65 +264,38 @@ export default function ResearchScheduler() {
               Google Meet Link
             </CardTitle>
             <CardDescription>
-              Generate a Google Meet link for your meeting
+              Enter your Google Meet link for the meeting
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* Generate Meeting Link Button */}
-            <div className="flex flex-col gap-4">
-              <Button
-                type="button"
-                onClick={generateMeetLink}
-                className="bg-tertiary hover:bg-tertiary/90 flex items-center gap-2"
-                disabled={
-                  isLoading ||
-                  !formData.title ||
-                  !formData.meetingDate ||
-                  !formData.meetingTime
-                }
-              >
-                {isLoading ? (
-                  <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                    Generating link...
-                  </>
-                ) : (
-                  <>
-                    <Video className="h-4 w-4" />
-                    Generate Google Meet Link
-                  </>
-                )}
-              </Button>
-
-              {generatedMeetLink && (
-                <div className="flex flex-col gap-2 mt-2">
-                  <Label>Generated Meet Link</Label>
-                  <div className="flex bg-muted p-2 rounded-md items-center">
-                    <Input
-                      value={generatedMeetLink}
-                      readOnly
-                      className={cn(
-                        "bg-transparent border-0 focus-visible:ring-0",
-                        inputClass
-                      )}
-                    />
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => copyToClipboard(generatedMeetLink)}
-                      className="ml-2"
-                    >
-                      <Copy className="h-4 w-4" />
-                      <span className="sr-only">Copy</span>
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    This link will be saved with your research meeting when you
-                    submit the form.
-                  </p>
-                </div>
-              )}
+            <div className="flex flex-col gap-2">
+              <Label>Meeting Link</Label>
+              <div className="flex bg-muted p-2 rounded-md items-center">
+                <Input
+                  placeholder="https://meet.google.com/..."
+                  value={generatedMeetLink}
+                  onChange={(e) => setGeneratedMeetLink(e.target.value)}
+                  className={cn(
+                    "bg-transparent border-0 focus-visible:ring-0",
+                    inputClass
+                  )}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => copyToClipboard(generatedMeetLink)}
+                  className="ml-2"
+                  disabled={!generatedMeetLink}
+                >
+                  <Copy className="h-4 w-4" />
+                  <span className="sr-only">Copy</span>
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Paste your Google Meet link above. This link will be saved with
+                your research meeting.
+              </p>
             </div>
           </CardContent>
         </Card>

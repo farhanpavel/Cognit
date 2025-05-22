@@ -15,8 +15,10 @@ import { GrGoogleWallet } from "react-icons/gr";
 import { CgAdidas } from "react-icons/cg";
 import { SiPuma } from "react-icons/si";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export default function Hero() {
+  const router = useRouter();
   return (
     <div className="font-mona">
       <div className="flex justify-around">
@@ -50,10 +52,20 @@ export default function Hero() {
             culpa.
           </p>
           <div className="space-x-4">
-            <button className="bg-tertiary px-6 py-2 rounded-sm text-white font-medium">
+            <button
+              onClick={() => {
+                router.push("/signin");
+              }}
+              className="bg-tertiary px-6 py-2 rounded-sm text-white font-medium"
+            >
               Get Started
             </button>
-            <button className="bg-[#EAFFF9]  px-6 py-2 rounded-sm text-tertiary font-medium">
+            <button
+              onClick={() => {
+                router.push("/signup");
+              }}
+              className="bg-[#EAFFF9]  px-6 py-2 rounded-sm text-tertiary font-medium"
+            >
               Signup
             </button>
           </div>

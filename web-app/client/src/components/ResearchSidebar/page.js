@@ -1,23 +1,16 @@
 "use client";
 import React, { useState } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
+import { usePathname } from "next/navigation";
 import {
-  User,
   Home,
-  Settings,
-  CreditCard,
-  Bell,
-  FileText,
-  HelpCircle,
   LogOut,
   ChevronLeft,
   ChevronRight,
   Menu,
-  X,
   AlarmClock,
 } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -28,10 +21,27 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import Cookies from "js-cookie";
 
 export default function Residebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeItem, setActiveItem] = useState("dashboard");
+  const pathname = usePathname();
+
+  // Set active item based on current path
+  React.useEffect(() => {
+    if (pathname) {
+      // Extract the last part of the path
+      const pathSegments = pathname.split("/");
+      const lastSegment = pathSegments[pathSegments.length - 1];
+
+      // Check if the last segment matches any menu item id
+      const menuItem = menuItems.find((item) => item.id === lastSegment);
+      if (menuItem) {
+        setActiveItem(menuItem.id);
+      }
+    }
+  }, [pathname]);
 
   const menuItems = [
     { id: "overview", label: "Overview", icon: Home },
@@ -164,6 +174,9 @@ export default function Residebar() {
               <Link href="/">
                 <Button
                   variant="ghost"
+                  onClick={() => {
+                    Cookies.remove("AccessToken");
+                  }}
                   className={`w-full justify-start gap-3 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-red-600 ${
                     isCollapsed ? "px-3" : ""
                   }`}
