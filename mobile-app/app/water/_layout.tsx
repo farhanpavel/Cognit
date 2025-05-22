@@ -1,15 +1,23 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { View, StyleSheet, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import WebView from "react-native-webview";
 import { Button, Surface, Text, IconButton } from "react-native-paper";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { use } from "matter-js";
+let statusBarHeight = 0;
 
 const Chemistry = () => {
   const webViewRef = useRef(null);
   const [infoExpanded, setInfoExpanded] = useState(true);
   const [controlExpanded, setControlExpanded] = useState(false);
+
+  const insets = useSafeAreaInsets();
+  useEffect(() => {
+    statusBarHeight = insets.top;
+  }, [insets]);
 
   const htmlContent = `
 <!DOCTYPE html>
@@ -503,7 +511,7 @@ const Chemistry = () => {
       <Surface
         style={[
           styles.controlTab,
-          controlExpanded ? { height: screenHeight * 0.31 } : { height: 50 }
+          controlExpanded ? { height: "auto" } : { height: 50 }
         ]}
         elevation={3}
       >
@@ -597,7 +605,7 @@ const Chemistry = () => {
       <Surface
         style={[
           styles.infoTab,
-          infoExpanded ? { height: screenHeight * 0.31 } : { height: 50 }
+          infoExpanded ? { height: "auto" } : { height: 50 }
         ]}
         elevation={3}
       >
@@ -676,7 +684,7 @@ const styles = StyleSheet.create({
   },
   infoTab: {
     position: "absolute",
-    top: 30, // Changed from bottom: 0
+    top: statusBarHeight ? 0 : 40,
     left: 0,
     right: 0,
     backgroundColor: "white",
