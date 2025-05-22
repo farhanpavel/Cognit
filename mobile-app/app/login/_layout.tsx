@@ -4,7 +4,8 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  Keyboard
+  Keyboard,
+  BackHandler
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import LoginForm from "@/components/login/login-form";
@@ -12,9 +13,27 @@ import BoardingTops from "@/components/boarding/boarding-top";
 import { useLoginMutation } from "@/modules/auth/api/auth.api";
 import { useGetMyProfileMutation } from "@/modules/profile/api/profile.api";
 import NotificationComponent from "@/components/notification/notification-component";
+import { useRouter } from "expo-router";
 
 const LoginScreen = () => {
   const [keyboardVisible, setKeyboardVisible] = useState(false);
+  const router = useRouter();
+  useEffect(() => {
+    
+    const onBackPress = () => {
+      if (router.canGoBack()) {
+        router.back();
+        return true;
+      }
+      return false; // Let the OS handle the back action (exit app)
+    };
+    
+    const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress);
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(

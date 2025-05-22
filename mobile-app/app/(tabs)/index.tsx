@@ -108,13 +108,15 @@ export default function HomeScreen() {
         playsInSilentModeIOS: true,
       });
 
-      const { recording: newRecording } = await Audio.Recording.createAsync(
+      setTimeout(async ()=>{
+        const { recording: newRecording } = await Audio.Recording.createAsync(
         Audio.RecordingOptionsPresets.HIGH_QUALITY
       );
-      setRecording(newRecording);
-
-      // Stop after 5 seconds
-      setTimeout(stopRecording, 5000);
+         setTimeout(async () => {
+          stopRecording(newRecording);
+          setRecording(newRecording);
+         },5000)
+      },6000);
 
     } catch (error) {
       console.error('Failed to start recording', error);
@@ -122,7 +124,7 @@ export default function HomeScreen() {
     }
   };
 
-  const stopRecording = async () => {
+  const stopRecording = async (recording: Audio.Recording | null) => {
     try {
       if (!recording) return;
       
@@ -161,7 +163,7 @@ export default function HomeScreen() {
         try {
           // Send to Google Cloud Speech-to-Text API
           const apiResponse = await axios.post(
-            `https://speech.googleapis.com/v1/speech:recognize?key=`,
+            `https://speech.googleapis.com/v1/speech:recognize?key=${process.env.GOOGLE_API}`,
             {
               config: {
                 encoding: 'LINEAR16',
