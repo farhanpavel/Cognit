@@ -12,12 +12,11 @@ import {
 
 const researchRouter = express.Router();
 
-
 // Meeting routes
 researchRouter.post("/meetings", jwtAuthentication, createMeeting);
 researchRouter.put("/meetings", jwtAuthentication, updateMeeting);
 
-researchRouter.get("/", getMeeting);
+researchRouter.get("/", jwtAuthentication, getMeeting);
 researchRouter.get("/get/all", getResearches);
 researchRouter.get("/enroll/:id", jwtAuthentication, enrollResearch);
 researchRouter.get("/get/:id", jwtAuthentication, getResearchById);

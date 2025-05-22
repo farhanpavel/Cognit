@@ -4,7 +4,13 @@ import "dotenv/config";
 import { sendNotification } from "./userController.js";
 
 export const getMeeting = async (req, res) => {
-  const meeting = await prisma.meeting.findMany({});
+  const userId = req.user.id;
+  console.log(userId);
+  const meeting = await prisma.meeting.findMany({
+    where: {
+      creatorId: userId,
+    },
+  });
   res.status(201).json(meeting);
 };
 
@@ -33,7 +39,7 @@ export const createMeeting = async (req, res) => {
       formLink,
     } = req.body;
     const userId = req.user.id;
-
+    console.log(userId);
     const meeting = await prisma.meeting.create({
       data: {
         title,
@@ -46,7 +52,6 @@ export const createMeeting = async (req, res) => {
         creatorId: userId,
       },
     });
-
     sendNotification(
       {
         title: title,
@@ -77,9 +82,9 @@ export const getResearches = async (req, res) => {
       _count: {
         select: {
           dataCollectors: true,
-        }
-      }
-    }
+        },
+      },
+    },
   });
   res.status(200).json(researchData);
 };
@@ -173,6 +178,3 @@ export const enrollResearch = async (req, res) => {
     res.status(500).json({ message: "Failed to enroll in research" });
   }
 };
-
-
-
