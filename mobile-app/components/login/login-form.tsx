@@ -112,6 +112,11 @@ const LoginForm = (props: LoginFormProps) => {
     try {
       // Execute login mutation
       const loginResponse = await login({ email, password }).unwrap();
+      if(loginResponse.role!=="STUDENT") {
+        setErrorMessage("This account is not a student account");
+        shakeError();
+        return;
+      }
 
       // Store tokens
       await AsyncStorage.setItem("accessToken", loginResponse.accessToken);
