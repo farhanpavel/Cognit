@@ -91,8 +91,8 @@ export default function Menu() {
       simulations: [
         {
           id: "water",
-          title: "Water & Solutions",
-          description: "Study properties of water and chemical solutions",
+          title: "Chemical",
+          description: "Study properties of chemical solutions",
           icon: Droplets
         }
       ]
