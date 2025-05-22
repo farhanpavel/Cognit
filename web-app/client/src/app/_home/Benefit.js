@@ -123,8 +123,8 @@ export default function Benefit() {
               </div>
               <div className="md:w-2/3">
                 <p className="text-xl italic mb-6">
-                  &quot;Before Cognit, I couldn't understand science classes
-                  because I can’t read well. Now I learn by listening and using
+                  &quot;Before Cognit, I couldn&apos;t understand science classes
+                  because I can&apos;t read well. Now I learn by listening and using
                   pictures. I even did a water quality project in my
                   village!&quot;
                 </p>
