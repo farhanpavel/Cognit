@@ -7,6 +7,7 @@ import { View, StyleSheet, ScrollView, TouchableOpacity, ActivityIndicator } fro
 import { SafeAreaView } from "react-native-safe-area-context"
 import { Surface, Text, IconButton, Divider, Button, Chip, Avatar } from "react-native-paper"
 import { get } from "react-native/Libraries/TurboModule/TurboModuleRegistry"
+import * as Linking from "expo-linking"
 
 // Types for research data
 interface Creator {
@@ -258,7 +259,12 @@ const ResearchProjects = () => {
                         {research.meetingLink && (
                           <Button
                             mode="outlined"
-                            onPress={() => console.log("Meeting link:", research.meetingLink)}
+                            onPress={() => {
+                                //open meeting link
+                                if (research.meetingLink) {
+                                    Linking.openURL(research.meetingLink)
+                                }
+                            }}
                             style={styles.actionButton}
                             textColor="#20B486"
                             icon="video-outline"
@@ -270,7 +276,12 @@ const ResearchProjects = () => {
                         {research.formLink && (
                           <Button
                             mode="outlined"
-                            onPress={() => console.log("Form link:", research.formLink)}
+                            onPress={() => {
+                                //open form link
+                                if (research.formLink) {
+                                    Linking.openURL(research.formLink)
+                                }
+                            }}
                             style={styles.actionButton}
                             textColor="#20B486"
                             icon="file-document-outline"

@@ -124,12 +124,38 @@ export default function HomeScreen() {
 
   const startVoiceCommand = async () => {
     try {
+      setIsListening(true);
+      
+      // Speak immediately about the features
+      speak(`Hi ${userName}, welcome to Cognit. You can say "Study", "Research", or "Download". Which one would you like?`);
+
+      // Start recording
+      await Audio.requestPermissionsAsync();
+      await Audio.setAudioModeAsync({
+        allowsRecordingIOS: true,
+        playsInSilentModeIOS: true,
+      });
+
+      setTimeout(async ()=>{
+        const { recording: newRecording } = await Audio.Recording.createAsync(
+        Audio.RecordingOptionsPresets.HIGH_QUALITY
+      );
+         setTimeout(async () => {
+          stopRecording(newRecording);
+          setRecording(newRecording);
+         },5000)
+      },6000);
+
+    } catch (error) {
+      console.error('Failed to start recording', error);
+      setIsListening(false);
       await Voice.start("en-US");
     } catch (e) {
       console.error("Voice start error:", e);
     }
   };
 
+  const stopRecording = async (recording: Audio.Recording | null) => {
   const stopVoiceCommand = async () => {
     try {
       await Voice.stop();
@@ -138,12 +164,56 @@ export default function HomeScreen() {
     }
   };
 
-  const handleShake = async () => {
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    speak(
-      `Hi ${userName}, welcome. You can say "Study", "Research", or "Download".`
-    );
-    startVoiceCommand();
+  const processVoiceCommand = async (audioUri: string) => {
+    try {
+      // Read the audio file as base64
+      const response = await fetch(audioUri);
+      const blob = await response.blob();
+      const reader = new FileReader();
+      
+      reader.onloadend = async () => {
+        const base64data = reader.result?.toString().split(',')[1];
+        if (!base64data) {
+          speak("Sorry, I couldn't process the audio. Please try again.");
+          return;
+        }
+
+        try {
+          // Send to Google Cloud Speech-to-Text API
+          const apiResponse = await axios.post(
+            `https://speech.googleapis.com/v1/speech:recognize?key=${process.env.GOOGLE_API}`,
+            {
+              config: {
+                encoding: 'LINEAR16',
+                sampleRateHertz: 16000,
+                languageCode: 'en-US',
+              },
+              audio: {
+                content: base64data,
+              },
+            }
+          );
+
+          console.warn("API Response:", apiResponse.data); // Debug log
+
+          const transcription = apiResponse.data.results?.[0]?.alternatives?.[0]?.transcript;
+          if (transcription) {
+            console.warn("Transcription:", transcription); // Debug log
+            handleVoiceCommand(transcription.toLowerCase());
+          } else {
+            speak("I didn't catch that. Please shake your device to try again.");
+          }
+        } catch (apiError) {
+          console.error('API Error:', apiError);
+          speak("Sorry, there was an error processing your request. Please try again.");
+        }
+      };
+      
+      reader.readAsDataURL(blob);
+    } catch (error) {
+      console.error('Error processing voice command:', error);
+      speak("Sorry, I encountered an error. Please shake your device to try again.");
+    }
   };
 
   const handleVoiceCommand = (command: string) => {
