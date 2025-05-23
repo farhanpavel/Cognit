@@ -1,17 +1,88 @@
-"use client"
+"use client";
 
-import { useRef, useState } from "react"
-import { View, StyleSheet } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import WebView from "react-native-webview"
-import { Button, Surface, Text, IconButton } from "react-native-paper"
-import { ArrowUp } from "lucide-react-native"
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Accelerometer } from "expo-sensors";
+import * as Haptics from "expo-haptics";
+import * as Speech from "expo-speech";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
+import { Button, Surface, Text, IconButton } from "react-native-paper";
+import { ArrowUp } from "lucide-react-native";
 
 const Light = () => {
-  const webViewRef = useRef(null)
-  const [isControlsExpanded, setIsControlsExpanded] = useState(false)
-  const [isInfoExpanded, setIsInfoExpanded] = useState(false)
+  const webViewRef = useRef(null);
+  const [isControlsExpanded, setIsControlsExpanded] = useState(false);
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
+  const shakeCountRef = useRef(0);
+  const shakeTimeoutRef = useRef(null);
+  const accelerometerSubscriptionRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const handleShakeSpeak = useCallback(() => {
+    if (!isMountedRef.current) return;
 
+    // First stop any ongoing speech from other components
+    Speech.stop();
+
+    // Then speak this component's message
+    Speech.speak(
+      "Here in light part demonstrate how electron flow from battery to light and how the voltage and current effect the lighting power",
+      {
+        language: "en",
+        onDone: () => console.log("Finished speaking"),
+        onError: (e) => console.log("Speech error:", e)
+      }
+    );
+  }, []);
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    const handleShake = ({ x, y, z }) => {
+      if (!isMountedRef.current) return;
+
+      const acceleration = Math.sqrt(x * x + y * y + z * z);
+      if (acceleration > 1.5) {
+        shakeCountRef.current += 1;
+
+        if (shakeTimeoutRef.current) {
+          clearTimeout(shakeTimeoutRef.current);
+        }
+
+        shakeTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            shakeCountRef.current = 0;
+          }
+        }, 1500);
+
+        if (shakeCountRef.current >= 2) {
+          shakeCountRef.current = 0;
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          handleShakeSpeak();
+        }
+      }
+    };
+
+    // Setup accelerometer
+    accelerometerSubscriptionRef.current =
+      Accelerometer.addListener(handleShake);
+
+    return () => {
+      isMountedRef.current = false;
+
+      // Cleanup accelerometer
+      if (accelerometerSubscriptionRef.current) {
+        accelerometerSubscriptionRef.current.remove();
+      }
+
+      // Clear any pending timeouts
+      if (shakeTimeoutRef.current) {
+        clearTimeout(shakeTimeoutRef.current);
+      }
+
+      // Stop any ongoing speech
+      Speech.stop();
+    };
+  }, [handleShakeSpeak]);
   const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -711,24 +782,24 @@ const Light = () => {
   </script>
 </body>
 </html>
-  `
+  `;
 
   const handleMessage = (event) => {
     try {
-      const data = JSON.parse(event.nativeEvent.data)
+      const data = JSON.parse(event.nativeEvent.data);
       if (data.type === "CONTROLS_EXPANDED") {
-        setIsControlsExpanded(true)
+        setIsControlsExpanded(true);
       } else if (data.type === "CONTROLS_COLLAPSED") {
-        setIsControlsExpanded(false)
+        setIsControlsExpanded(false);
       } else if (data.type === "INFO_EXPANDED") {
-        setIsInfoExpanded(true)
+        setIsInfoExpanded(true);
       } else if (data.type === "INFO_COLLAPSED") {
-        setIsInfoExpanded(false)
+        setIsInfoExpanded(false);
       }
     } catch (error) {
-      console.error("Error parsing WebView message:", error)
+      console.error("Error parsing WebView message:", error);
     }
-  }
+  };
 
   const handleReset = () => {
     webViewRef.current?.injectJavaScript(`
@@ -750,8 +821,8 @@ const Light = () => {
       updateElectronAnimation();
       
       true;
-    `)
-  }
+    `);
+  };
 
   const handleToggle = () => {
     webViewRef.current?.injectJavaScript(`
@@ -762,22 +833,22 @@ const Light = () => {
       const infoPanel = document.getElementById('info-panel');
       infoPanel.classList.remove('expanded');
       true;
-    `)
-  }
+    `);
+  };
 
   const toggleControlPanel = () => {
     webViewRef.current?.injectJavaScript(`
       toggleControlPanel();
       true;
-    `)
-  }
+    `);
+  };
 
   const toggleInfoPanel = () => {
     webViewRef.current?.injectJavaScript(`
       toggleInfoPanel();
       true;
-    `)
-  }
+    `);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -806,62 +877,80 @@ const Light = () => {
 
       <Surface style={styles.controls} elevation={2}>
         <View style={styles.buttonContainer}>
-          <Button mode="contained" onPress={handleToggle} style={styles.button} buttonColor="#FFFFFF" icon="power">
+          <Button
+            mode="contained"
+            onPress={handleToggle}
+            style={styles.button}
+            buttonColor="#FFFFFF"
+            icon="power"
+          >
             Toggle Switch
           </Button>
-          <Button mode="outlined" className="border-white" onPress={handleReset} style={styles.button} textColor="#FFFFFF" icon="refresh">
+          <Button
+            mode="outlined"
+            className="border-white"
+            onPress={handleReset}
+            style={styles.button}
+            textColor="#FFFFFF"
+            icon="refresh"
+          >
             Reset
           </Button>
-          <Button mode="contained" onPress={toggleInfoPanel} className="rounded-md" buttonColor="#FFFFFF"> 
-            <ArrowUp size={10} color="#20B486" strokeWidth={2} />           
+          <Button
+            mode="contained"
+            onPress={toggleInfoPanel}
+            className="rounded-md"
+            buttonColor="#FFFFFF"
+          >
+            <ArrowUp size={10} color="#20B486" strokeWidth={2} />
           </Button>
         </View>
       </Surface>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f0f8ff"
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 10,
-    backgroundColor: "#20B486",
+    backgroundColor: "#20B486"
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "white"
   },
   webViewContainer: {
     flex: 1,
-    overflow: "hidden",
+    overflow: "hidden"
   },
   webview: {
     flex: 1,
-    backgroundColor: "transparent",
+    backgroundColor: "transparent"
   },
   controls: {
     padding: 10,
     backgroundColor: "#20B486",
-    alignItems: "center",
+    alignItems: "center"
   },
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
     width: "100%",
-    marginTop: 5,
+    marginTop: 5
   },
   button: {
     borderRadius: 8,
     minWidth: 100,
-    marginRight: 10,
-  },
-})
+    marginRight: 10
+  }
+});
 
-export default Light
+export default Light;

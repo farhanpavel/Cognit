@@ -1,16 +1,87 @@
-"use client"
+"use client";
 
-import { useRef, useState } from "react"
-import { View, StyleSheet } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import WebView from "react-native-webview"
-import { Button, Text, Surface } from "react-native-paper"
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Accelerometer } from "expo-sensors";
+import * as Haptics from "expo-haptics";
+import * as Speech from "expo-speech";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
+import { Button, Text, Surface } from "react-native-paper";
 
 export default function DataStructureGame() {
-  const webViewRef = useRef(null)
-  const [currentLevel, setCurrentLevel] = useState(1)
-  const [showInstructions, setShowInstructions] = useState(true)
+  const webViewRef = useRef(null);
+  const [currentLevel, setCurrentLevel] = useState(1);
+  const [showInstructions, setShowInstructions] = useState(true);
+  const shakeCountRef = useRef(0);
+  const shakeTimeoutRef = useRef(null);
+  const accelerometerSubscriptionRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const handleShakeSpeak = useCallback(() => {
+    if (!isMountedRef.current) return;
 
+    // First stop any ongoing speech from other components
+    Speech.stop();
+
+    // Then speak this component's message
+    Speech.speak(
+      "This is Cognit game part where you will learn data structure from playing a game",
+      {
+        language: "en",
+        onDone: () => console.log("Finished speaking"),
+        onError: (e) => console.log("Speech error:", e)
+      }
+    );
+  }, []);
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    const handleShake = ({ x, y, z }) => {
+      if (!isMountedRef.current) return;
+
+      const acceleration = Math.sqrt(x * x + y * y + z * z);
+      if (acceleration > 1.5) {
+        shakeCountRef.current += 1;
+
+        if (shakeTimeoutRef.current) {
+          clearTimeout(shakeTimeoutRef.current);
+        }
+
+        shakeTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            shakeCountRef.current = 0;
+          }
+        }, 1500);
+
+        if (shakeCountRef.current >= 2) {
+          shakeCountRef.current = 0;
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          handleShakeSpeak();
+        }
+      }
+    };
+
+    // Setup accelerometer
+    accelerometerSubscriptionRef.current =
+      Accelerometer.addListener(handleShake);
+
+    return () => {
+      isMountedRef.current = false;
+
+      // Cleanup accelerometer
+      if (accelerometerSubscriptionRef.current) {
+        accelerometerSubscriptionRef.current.remove();
+      }
+
+      // Clear any pending timeouts
+      if (shakeTimeoutRef.current) {
+        clearTimeout(shakeTimeoutRef.current);
+      }
+
+      // Stop any ongoing speech
+      Speech.stop();
+    };
+  }, [handleShakeSpeak]);
   // HTML content with structured data visualization
   const htmlContent = `
     <!DOCTYPE html>
@@ -1036,42 +1107,42 @@ export default function DataStructureGame() {
       </script>
     </body>
     </html>
-  `
+  `;
 
   // Handle messages from WebView
   const handleMessage = (event) => {
     try {
-      const message = JSON.parse(event.nativeEvent.data)
+      const message = JSON.parse(event.nativeEvent.data);
       if (message.type === "LEVEL_CHANGE") {
-        setCurrentLevel(message.level)
+        setCurrentLevel(message.level);
       }
     } catch (error) {
-      console.error("Error parsing message from WebView:", error)
+      console.error("Error parsing message from WebView:", error);
     }
-  }
+  };
 
   // Send message to WebView
   const changeLevel = (level) => {
-    setCurrentLevel(level) // Update the React state immediately
+    setCurrentLevel(level); // Update the React state immediately
     webViewRef.current?.injectJavaScript(`
       window.postMessage(JSON.stringify({
         type: 'CHANGE_LEVEL',
         level: ${level}
       }), '*');
       true;
-    `)
-  }
+    `);
+  };
 
   const toggleTutorial = () => {
-    setShowInstructions(!showInstructions)
+    setShowInstructions(!showInstructions);
     webViewRef.current?.injectJavaScript(`
       window.postMessage(JSON.stringify({
         type: 'TOGGLE_TUTORIAL',
         show: ${!showInstructions}
       }), '*');
       true;
-    `)
-  }
+    `);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -1122,55 +1193,55 @@ export default function DataStructureGame() {
         </Button>
       </Surface>
     </SafeAreaView>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f0f8ff"
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 15,
-    backgroundColor: "#20B486",
+    backgroundColor: "#20B486"
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "white"
   },
   levelText: {
     fontSize: 16,
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "bold"
   },
   webViewContainer: {
     flex: 1,
-    overflow: "hidden",
+    overflow: "hidden"
   },
   webView: {
-    backgroundColor: "transparent",
+    backgroundColor: "transparent"
   },
   controls: {
     padding: 15,
     backgroundColor: "white",
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
+    alignItems: "center"
   },
   levelButtons: {
     flexDirection: "row",
-    gap: 8,
+    gap: 8
   },
   levelButton: {
     minWidth: 40,
     borderRadius: 8,
-    borderColor: "#20B486",
+    borderColor: "#20B486"
   },
   helpButton: {
-    borderRadius: 8,
-  },
-})
+    borderRadius: 8
+  }
+});

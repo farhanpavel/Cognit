@@ -1,20 +1,98 @@
-"use client"
+"use client";
 
-import { useRef, useState } from "react"
-import { View, StyleSheet, Dimensions } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import WebView from "react-native-webview"
-import { Button, Surface, Text, IconButton, Card, Title, Paragraph } from "react-native-paper"
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Accelerometer } from "expo-sensors";
+import * as Haptics from "expo-haptics";
+import * as Speech from "expo-speech";
+import { View, StyleSheet, Dimensions } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
+import {
+  Button,
+  Surface,
+  Text,
+  IconButton,
+  Card,
+  Title,
+  Paragraph
+} from "react-native-paper";
 const { height: screenHeight } = Dimensions.get("window");
 
 const PendulumSwing = () => {
-  const webViewRef = useRef(null)
-  const pendulumLength = 300 // Define pendulumLength at the component level
-  const [infoExpanded, setInfoExpanded] = useState(false)
-  const [angle, setAngle] = useState("0.0")
-  const [velocity, setVelocity] = useState("0.00")
+  const webViewRef = useRef(null);
+  const pendulumLength = 300; // Define pendulumLength at the component level
+  const [infoExpanded, setInfoExpanded] = useState(false);
+  const [angle, setAngle] = useState("0.0");
+  const [velocity, setVelocity] = useState("0.00");
+  const shakeCountRef = useRef(0);
+  const shakeTimeoutRef = useRef(null);
+  const accelerometerSubscriptionRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const handleShakeSpeak = useCallback(() => {
+    if (!isMountedRef.current) return;
 
+    // First stop any ongoing speech from other components
+    Speech.stop();
 
+    // Then speak this component's message
+    Speech.speak(
+      "This oscillation component demonstrates how the legth of swing effect the period of oscillation",
+      {
+        language: "en",
+        onDone: () => console.log("Finished speaking"),
+        onError: (e) => console.log("Speech error:", e)
+      }
+    );
+  }, []);
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    const handleShake = ({ x, y, z }) => {
+      if (!isMountedRef.current) return;
+
+      const acceleration = Math.sqrt(x * x + y * y + z * z);
+      if (acceleration > 1.5) {
+        shakeCountRef.current += 1;
+
+        if (shakeTimeoutRef.current) {
+          clearTimeout(shakeTimeoutRef.current);
+        }
+
+        shakeTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            shakeCountRef.current = 0;
+          }
+        }, 1500);
+
+        if (shakeCountRef.current >= 2) {
+          shakeCountRef.current = 0;
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          handleShakeSpeak();
+        }
+      }
+    };
+
+    // Setup accelerometer
+    accelerometerSubscriptionRef.current =
+      Accelerometer.addListener(handleShake);
+
+    return () => {
+      isMountedRef.current = false;
+
+      // Cleanup accelerometer
+      if (accelerometerSubscriptionRef.current) {
+        accelerometerSubscriptionRef.current.remove();
+      }
+
+      // Clear any pending timeouts
+      if (shakeTimeoutRef.current) {
+        clearTimeout(shakeTimeoutRef.current);
+      }
+
+      // Stop any ongoing speech
+      Speech.stop();
+    };
+  }, [handleShakeSpeak]);
   const htmlContent = `
         <!DOCTYPE html>
         <html>
@@ -172,38 +250,38 @@ const PendulumSwing = () => {
             </script>
         </body>
         </html>
-    `
+    `;
 
   const handleMessage = (event) => {
     try {
-      const data = JSON.parse(event.nativeEvent.data)
-      setAngle(data.angle)
-      setVelocity(data.velocity)
+      const data = JSON.parse(event.nativeEvent.data);
+      setAngle(data.angle);
+      setVelocity(data.velocity);
     } catch (error) {
-      console.error("Error parsing WebView message:", error)
+      console.error("Error parsing WebView message:", error);
     }
-  }
+  };
 
   const swingPendulum = () => {
     webViewRef.current?.injectJavaScript(`
       swingPendulum();
       true;
-    `)
-  }
+    `);
+  };
 
   const fastSwingPendulum = () => {
     webViewRef.current?.injectJavaScript(`
       fastSwingPendulum();
       true;
-    `)
-  }
+    `);
+  };
 
   const resetPendulum = () => {
     webViewRef.current?.injectJavaScript(`
       resetPendulum();
       true;
-    `)
-  }
+    `);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -221,7 +299,9 @@ const PendulumSwing = () => {
 
         {infoExpanded && (
           <View style={styles.infoContent}>
-            <Paragraph style={styles.infoParagraph}>Period (T) of a simple pendulum:</Paragraph>
+            <Paragraph style={styles.infoParagraph}>
+              Period (T) of a simple pendulum:
+            </Paragraph>
             <Card style={styles.formulaCard}>
               <Card.Content>
                 <Text style={styles.formula}>T = 2π√(L/g)</Text>
@@ -234,11 +314,15 @@ const PendulumSwing = () => {
             </View>
             <View style={styles.listItem}>
               <Text style={styles.bulletPoint}>•</Text>
-              <Text style={styles.listText}>L = Length of pendulum (meters)</Text>
+              <Text style={styles.listText}>
+                L = Length of pendulum (meters)
+              </Text>
             </View>
             <View style={styles.listItem}>
               <Text style={styles.bulletPoint}>•</Text>
-              <Text style={styles.listText}>g = Acceleration due to gravity (9.81 m/s²)</Text>
+              <Text style={styles.listText}>
+                g = Acceleration due to gravity (9.81 m/s²)
+              </Text>
             </View>
           </View>
         )}
@@ -272,7 +356,13 @@ const PendulumSwing = () => {
 
       {/* Controls */}
       <Surface style={styles.controls} elevation={3}>
-        <Button mode="contained" onPress={swingPendulum} style={styles.button} buttonColor="#20B486" icon="play">
+        <Button
+          mode="contained"
+          onPress={swingPendulum}
+          style={styles.button}
+          buttonColor="#20B486"
+          icon="play"
+        >
           Swing
         </Button>
         <Button
@@ -284,118 +374,123 @@ const PendulumSwing = () => {
         >
           Fast Swing
         </Button>
-        <Button mode="outlined" onPress={resetPendulum} style={styles.button} textColor="#20B486" icon="refresh">
+        <Button
+          mode="outlined"
+          onPress={resetPendulum}
+          style={styles.button}
+          textColor="#20B486"
+          icon="refresh"
+        >
           Reset
         </Button>
       </Surface>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f0f8ff"
   },
-infoPanel: {
-  backgroundColor: "white",
-  margin: 10,
-  borderRadius: 8,
-  overflow: "hidden",
-  zIndex: 1,
-}
-,
+  infoPanel: {
+    backgroundColor: "white",
+    margin: 10,
+    borderRadius: 8,
+    overflow: "hidden",
+    zIndex: 1
+  },
   infoHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingHorizontal: 16,
-    paddingVertical: 8,
+    paddingVertical: 8
   },
   infoTitle: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#20B486",
+    color: "#20B486"
   },
   infoContent: {
     padding: 16,
     borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
+    borderTopColor: "#f0f0f0"
   },
   infoParagraph: {
     fontSize: 14,
-    marginBottom: 8,
+    marginBottom: 8
   },
   formulaCard: {
     backgroundColor: "#f5f9f7",
-    marginVertical: 8,
+    marginVertical: 8
   },
   formula: {
     fontFamily: "monospace",
     fontSize: 16,
     textAlign: "center",
-    color: "#1C9777",
+    color: "#1C9777"
   },
   listItem: {
     flexDirection: "row",
     marginBottom: 4,
-    paddingLeft: 8,
+    paddingLeft: 8
   },
   bulletPoint: {
     marginRight: 8,
-    color: "#20B486",
+    color: "#20B486"
   },
   listText: {
-    fontSize: 14,
+    fontSize: 14
   },
   liveData: {
     flexDirection: "row",
     justifyContent: "space-around",
     padding: 12,
     borderTopWidth: 1,
-    borderTopColor: "#f0f0f0",
+    borderTopColor: "#f0f0f0"
   },
   dataItem: {
-    alignItems: "center",
+    alignItems: "center"
   },
   dataLabel: {
     fontSize: 12,
     color: "#666",
-    marginBottom: 4,
+    marginBottom: 4
   },
   dataValue: {
     fontSize: 16,
     fontWeight: "bold",
-    color: "#20B486",
+    color: "#20B486"
   },
-webviewContainer: {
-  position: 'absolute',
-  top: screenHeight * 0.25, // 25% from top
-  left: 0,
-  right: 0,
-  bottom: 80, // leave space for controls
-  zIndex: 0,
-},
+  webviewContainer: {
+    position: "absolute",
+    top: screenHeight * 0.25, // 25% from top
+    left: 0,
+    right: 0,
+    bottom: 80, // leave space for controls
+    zIndex: 0
+  },
   webview: {
-    flex: 1,
+    flex: 1
   },
-controls: {
-  position: 'absolute',
-  bottom: 0,
-  left: 0,
-  right: 0,
-  flexDirection: 'row',
-  justifyContent: 'space-around',
-  padding: 16,
-  backgroundColor: 'white',
-  borderTopWidth: 1,
-  borderTopColor: '#ddd',
-  zIndex: 2,
-},
+  controls: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    padding: 16,
+    backgroundColor: "white",
+    borderTopWidth: 1,
+    borderTopColor: "#ddd",
+    zIndex: 2
+  },
 
   button: {
-    borderRadius: 8,
-  },
-})
+    borderRadius: 8
+  }
+});
 
-export default PendulumSwing
+export default PendulumSwing;

@@ -1,13 +1,84 @@
-"use client"
+"use client";
 
-import { useRef } from "react"
-import { View, StyleSheet } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import WebView from "react-native-webview"
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Accelerometer } from "expo-sensors";
+import * as Haptics from "expo-haptics";
+import * as Speech from "expo-speech";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
 
 const PhysicsSimulator = () => {
-  const webViewRef = useRef<WebView>(null)
+  const webViewRef = useRef<WebView>(null);
+  const shakeCountRef = useRef(0);
+  const shakeTimeoutRef = useRef(null);
+  const accelerometerSubscriptionRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const handleShakeSpeak = useCallback(() => {
+    if (!isMountedRef.current) return;
 
+    // First stop any ongoing speech from other components
+    Speech.stop();
+
+    // Then speak this component's message
+    Speech.speak(
+      "This part demonstrate all the neuton law from first to third",
+      {
+        language: "en",
+        onDone: () => console.log("Finished speaking"),
+        onError: (e) => console.log("Speech error:", e)
+      }
+    );
+  }, []);
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    const handleShake = ({ x, y, z }) => {
+      if (!isMountedRef.current) return;
+
+      const acceleration = Math.sqrt(x * x + y * y + z * z);
+      if (acceleration > 1.5) {
+        shakeCountRef.current += 1;
+
+        if (shakeTimeoutRef.current) {
+          clearTimeout(shakeTimeoutRef.current);
+        }
+
+        shakeTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            shakeCountRef.current = 0;
+          }
+        }, 1500);
+
+        if (shakeCountRef.current >= 2) {
+          shakeCountRef.current = 0;
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          handleShakeSpeak();
+        }
+      }
+    };
+
+    // Setup accelerometer
+    accelerometerSubscriptionRef.current =
+      Accelerometer.addListener(handleShake);
+
+    return () => {
+      isMountedRef.current = false;
+
+      // Cleanup accelerometer
+      if (accelerometerSubscriptionRef.current) {
+        accelerometerSubscriptionRef.current.remove();
+      }
+
+      // Clear any pending timeouts
+      if (shakeTimeoutRef.current) {
+        clearTimeout(shakeTimeoutRef.current);
+      }
+
+      // Stop any ongoing speech
+      Speech.stop();
+    };
+  }, [handleShakeSpeak]);
   const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -348,11 +419,11 @@ const PhysicsSimulator = () => {
   </script>
 </body>
 </html>
-  `
+  `;
 
   const handleReset = () => {
-    webViewRef.current?.reload()
-  }
+    webViewRef.current?.reload();
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -366,17 +437,17 @@ const PhysicsSimulator = () => {
         startInLoadingState={true}
       />
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f0f8ff"
   },
   webview: {
-    flex: 1,
-  },
-})
+    flex: 1
+  }
+});
 
-export default PhysicsSimulator
+export default PhysicsSimulator;

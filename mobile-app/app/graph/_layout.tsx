@@ -1,15 +1,20 @@
-"use client"
+"use client";
 
-import { useRef, useState } from "react"
-import { View, StyleSheet } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import WebView from "react-native-webview"
-import { Button, Surface, Text, IconButton } from "react-native-paper"
-
+import { useRef, useState, useCallback, useEffect } from "react";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
+import { Button, Surface, Text, IconButton } from "react-native-paper";
+import { Accelerometer } from "expo-sensors";
+import * as Haptics from "expo-haptics";
+import * as Speech from "expo-speech";
 const Graph = () => {
-  const webViewRef = useRef(null)
-  const [isLoading, setIsLoading] = useState(true)
-
+  const webViewRef = useRef(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const shakeCountRef = useRef(0);
+  const shakeTimeoutRef = useRef(null);
+  const accelerometerSubscriptionRef = useRef(null);
+  const isMountedRef = useRef(true);
   const htmlContent = `
 <!DOCTYPE html>
 <html>
@@ -571,18 +576,82 @@ const Graph = () => {
   </script>
 </body>
 </html>
-  `
+  `;
+  const handleShakeSpeak = useCallback(() => {
+    if (!isMountedRef.current) return;
 
+    // First stop any ongoing speech from other components
+    Speech.stop();
+
+    // Then speak this component's message
+    Speech.speak(
+      "This is Cognit Graph component where you will write about graph in result you will see the graph",
+      {
+        language: "en",
+        onDone: () => console.log("Finished speaking"),
+        onError: (e) => console.log("Speech error:", e)
+      }
+    );
+  }, []);
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    const handleShake = ({ x, y, z }) => {
+      if (!isMountedRef.current) return;
+
+      const acceleration = Math.sqrt(x * x + y * y + z * z);
+      if (acceleration > 1.5) {
+        shakeCountRef.current += 1;
+
+        if (shakeTimeoutRef.current) {
+          clearTimeout(shakeTimeoutRef.current);
+        }
+
+        shakeTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            shakeCountRef.current = 0;
+          }
+        }, 1500);
+
+        if (shakeCountRef.current >= 2) {
+          shakeCountRef.current = 0;
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          handleShakeSpeak();
+        }
+      }
+    };
+
+    // Setup accelerometer
+    accelerometerSubscriptionRef.current =
+      Accelerometer.addListener(handleShake);
+
+    return () => {
+      isMountedRef.current = false;
+
+      // Cleanup accelerometer
+      if (accelerometerSubscriptionRef.current) {
+        accelerometerSubscriptionRef.current.remove();
+      }
+
+      // Clear any pending timeouts
+      if (shakeTimeoutRef.current) {
+        clearTimeout(shakeTimeoutRef.current);
+      }
+
+      // Stop any ongoing speech
+      Speech.stop();
+    };
+  }, [handleShakeSpeak]);
   const handleRefresh = () => {
-    webViewRef.current?.reload()
-    setIsLoading(true)
-  }
+    webViewRef.current?.reload();
+    setIsLoading(true);
+  };
 
   const handleMessage = (event) => {
     if (event.nativeEvent.data === "loaded") {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -623,36 +692,36 @@ const Graph = () => {
             webViewRef.current?.injectJavaScript(`
               alert('Mathematical Graph Displayer Help\\n\\n• Enter a mathematical equation in terms of x\\n• Set the X-axis range\\n• Click "Plot Graph" to visualize\\n• Use example equations for quick testing\\n• View coordinate values in the table below');
               true;
-            `)
+            `);
           }}
         />
       </Surface>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f0f8ff"
   },
   header: {
     padding: 15,
     backgroundColor: "#20B486",
-    alignItems: "center",
+    alignItems: "center"
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "white"
   },
   webviewContainer: {
     flex: 1,
-    overflow: "hidden",
+    overflow: "hidden"
   },
   webview: {
     flex: 1,
-    backgroundColor: "transparent",
+    backgroundColor: "transparent"
   },
   controls: {
     flexDirection: "row",
@@ -661,15 +730,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     borderTopWidth: 1,
-    borderTopColor: "#A8E2D0",
+    borderTopColor: "#A8E2D0"
   },
   button: {
     flex: 1,
-    borderRadius: 8,
+    borderRadius: 8
   },
   helpButton: {
-    marginLeft: 10,
-  },
-})
+    marginLeft: 10
+  }
+});
 
-export default Graph
+export default Graph;

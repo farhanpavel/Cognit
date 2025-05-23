@@ -1,15 +1,83 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
-import { View, StyleSheet} from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import WebView from "react-native-webview"
-import { Button, Surface, Text, IconButton } from "react-native-paper"
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Accelerometer } from "expo-sensors";
+import * as Haptics from "expo-haptics";
+import * as Speech from "expo-speech";
+import { View, StyleSheet } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
+import { Button, Surface, Text, IconButton } from "react-native-paper";
 
 const VelocityFormulas = () => {
-  const webViewRef = useRef(null)
-  const [isInfoExpanded, setIsInfoExpanded] = useState(false)
+  const webViewRef = useRef(null);
+  const [isInfoExpanded, setIsInfoExpanded] = useState(false);
+  const shakeCountRef = useRef(0);
+  const shakeTimeoutRef = useRef(null);
+  const accelerometerSubscriptionRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const handleShakeSpeak = useCallback(() => {
+    if (!isMountedRef.current) return;
 
+    // First stop any ongoing speech from other components
+    Speech.stop();
+
+    // Then speak this component's message
+    Speech.speak("This part demonstrate all the formula of velocity", {
+      language: "en",
+      onDone: () => console.log("Finished speaking"),
+      onError: (e) => console.log("Speech error:", e)
+    });
+  }, []);
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    const handleShake = ({ x, y, z }) => {
+      if (!isMountedRef.current) return;
+
+      const acceleration = Math.sqrt(x * x + y * y + z * z);
+      if (acceleration > 1.5) {
+        shakeCountRef.current += 1;
+
+        if (shakeTimeoutRef.current) {
+          clearTimeout(shakeTimeoutRef.current);
+        }
+
+        shakeTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            shakeCountRef.current = 0;
+          }
+        }, 1500);
+
+        if (shakeCountRef.current >= 2) {
+          shakeCountRef.current = 0;
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          handleShakeSpeak();
+        }
+      }
+    };
+
+    // Setup accelerometer
+    accelerometerSubscriptionRef.current =
+      Accelerometer.addListener(handleShake);
+
+    return () => {
+      isMountedRef.current = false;
+
+      // Cleanup accelerometer
+      if (accelerometerSubscriptionRef.current) {
+        accelerometerSubscriptionRef.current.remove();
+      }
+
+      // Clear any pending timeouts
+      if (shakeTimeoutRef.current) {
+        clearTimeout(shakeTimeoutRef.current);
+      }
+
+      // Stop any ongoing speech
+      Speech.stop();
+    };
+  }, [handleShakeSpeak]);
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -303,46 +371,46 @@ const VelocityFormulas = () => {
         </script>
     </body>
     </html>
-  `
+  `;
 
   const handleMessage = (event) => {
     try {
-      const data = JSON.parse(event.nativeEvent.data)
+      const data = JSON.parse(event.nativeEvent.data);
       if (data.type === "INFO_EXPANDED") {
-        setIsInfoExpanded(true)
+        setIsInfoExpanded(true);
       } else if (data.type === "INFO_COLLAPSED") {
-        setIsInfoExpanded(false)
+        setIsInfoExpanded(false);
       }
     } catch (error) {
-      console.error("Error parsing WebView message:", error)
+      console.error("Error parsing WebView message:", error);
     }
-  }
+  };
 
   const startSimulation = () => {
     webViewRef.current?.injectJavaScript(`
       startSimulation();
       true;
-    `)
-  }
+    `);
+  };
 
   const resetSimulation = () => {
     webViewRef.current?.injectJavaScript(`
       resetSimulation();
       true;
-    `)
-  }
+    `);
+  };
 
   const toggleInfoPanel = () => {
     webViewRef.current?.injectJavaScript(`
       toggleInfoPanel();
       true;
-    `)
-  }
+    `);
+  };
 
   useEffect(() => {
-    toggleInfoPanel()
-    toggleInfoPanel()
-  },[])
+    toggleInfoPanel();
+    toggleInfoPanel();
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -371,40 +439,52 @@ const VelocityFormulas = () => {
       </View>
 
       <Surface style={styles.controls} elevation={2}>
-        <Button mode="contained" onPress={startSimulation} style={styles.button} buttonColor="#20B486" icon="play">
+        <Button
+          mode="contained"
+          onPress={startSimulation}
+          style={styles.button}
+          buttonColor="#20B486"
+          icon="play"
+        >
           Start Simulation
         </Button>
         <View style={{ width: 30 }} />
-        <Button mode="outlined" onPress={resetSimulation} style={styles.button} textColor="#20B486" icon="refresh">
+        <Button
+          mode="outlined"
+          onPress={resetSimulation}
+          style={styles.button}
+          textColor="#20B486"
+          icon="refresh"
+        >
           Reset
         </Button>
       </Surface>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f0f8ff"
   },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     padding: 8,
-    backgroundColor: "#20B486",
+    backgroundColor: "#20B486"
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "white"
   },
   webviewContainer: {
-    flex: 1,
+    flex: 1
   },
   webview: {
-    flex: 1,
+    flex: 1
   },
   controls: {
     flexDirection: "row",
@@ -413,12 +493,12 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: "white",
     borderTopWidth: 1,
-    borderTopColor: "#A8E2D0",
+    borderTopColor: "#A8E2D0"
   },
   button: {
     borderRadius: 8,
-    minWidth: 150,
-  },
-})
+    minWidth: 150
+  }
+});
 
-export default VelocityFormulas
+export default VelocityFormulas;

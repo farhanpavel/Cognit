@@ -1,17 +1,88 @@
-"use client"
+"use client";
 
-import { useRef, useState } from "react"
-import { View, StyleSheet, Modal, ScrollView } from "react-native"
-import { SafeAreaView } from "react-native-safe-area-context"
-import WebView from "react-native-webview"
-import { Text, Surface, Button } from "react-native-paper"
+import { useRef, useState, useEffect, useCallback } from "react";
+import { Accelerometer } from "expo-sensors";
+import * as Haptics from "expo-haptics";
+import * as Speech from "expo-speech";
+import { View, StyleSheet, Modal, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import WebView from "react-native-webview";
+import { Text, Surface, Button } from "react-native-paper";
 
 const HumanBodyExplorer = () => {
-  const webViewRef = useRef(null)
-  const [showModal, setShowModal] = useState(false)
-  const [selectedOrgan, setSelectedOrgan] = useState(null)
-  const [bodySystem, setBodySystem] = useState("all")
+  const webViewRef = useRef(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedOrgan, setSelectedOrgan] = useState(null);
+  const [bodySystem, setBodySystem] = useState("all");
+  const shakeCountRef = useRef(0);
+  const shakeTimeoutRef = useRef(null);
+  const accelerometerSubscriptionRef = useRef(null);
+  const isMountedRef = useRef(true);
+  const handleShakeSpeak = useCallback(() => {
+    if (!isMountedRef.current) return;
 
+    // First stop any ongoing speech from other components
+    Speech.stop();
+
+    // Then speak this component's message
+    Speech.speak(
+      "This Biology component demonstrates Physical Part of our body from liver to kidney,from intestine to feet",
+      {
+        language: "en",
+        onDone: () => console.log("Finished speaking"),
+        onError: (e) => console.log("Speech error:", e)
+      }
+    );
+  }, []);
+  useEffect(() => {
+    isMountedRef.current = true;
+
+    const handleShake = ({ x, y, z }) => {
+      if (!isMountedRef.current) return;
+
+      const acceleration = Math.sqrt(x * x + y * y + z * z);
+      if (acceleration > 1.5) {
+        shakeCountRef.current += 1;
+
+        if (shakeTimeoutRef.current) {
+          clearTimeout(shakeTimeoutRef.current);
+        }
+
+        shakeTimeoutRef.current = setTimeout(() => {
+          if (isMountedRef.current) {
+            shakeCountRef.current = 0;
+          }
+        }, 1500);
+
+        if (shakeCountRef.current >= 2) {
+          shakeCountRef.current = 0;
+          Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+          handleShakeSpeak();
+        }
+      }
+    };
+
+    // Setup accelerometer
+    accelerometerSubscriptionRef.current =
+      Accelerometer.addListener(handleShake);
+
+    return () => {
+      isMountedRef.current = false;
+
+      // Cleanup accelerometer
+      if (accelerometerSubscriptionRef.current) {
+        accelerometerSubscriptionRef.current.remove();
+      }
+
+      // Clear any pending timeouts
+      if (shakeTimeoutRef.current) {
+        clearTimeout(shakeTimeoutRef.current);
+      }
+
+      // Stop any ongoing speech
+      Speech.stop();
+    };
+  }, [handleShakeSpeak]);
   // Organ information database
   const organInfo = {
     brain: {
@@ -24,9 +95,10 @@ const HumanBodyExplorer = () => {
         "Processes sensory information",
         "Regulates body temperature and vital functions",
         "Controls movement and balance",
-        "Enables reasoning, emotions, and behavior",
+        "Enables reasoning, emotions, and behavior"
       ],
-      facts: "The human brain contains approximately 86 billion neurons and weighs about 3 pounds (1.4 kg).",
+      facts:
+        "The human brain contains approximately 86 billion neurons and weighs about 3 pounds (1.4 kg)."
     },
     heart: {
       name: "Heart",
@@ -38,9 +110,10 @@ const HumanBodyExplorer = () => {
         "Receives deoxygenated blood from the body",
         "Maintains blood pressure",
         "Circulates nutrients and hormones",
-        "Removes waste products through circulation",
+        "Removes waste products through circulation"
       ],
-      facts: "Your heart will beat about 2.5 billion times during your lifetime.",
+      facts:
+        "Your heart will beat about 2.5 billion times during your lifetime."
     },
     lungs: {
       name: "Lungs",
@@ -52,9 +125,10 @@ const HumanBodyExplorer = () => {
         "Filter air contaminants",
         "Regulate blood pH",
         "Produce sounds through air movement",
-        "Help maintain body temperature",
+        "Help maintain body temperature"
       ],
-      facts: "The surface area of the lungs is roughly the same size as a tennis court.",
+      facts:
+        "The surface area of the lungs is roughly the same size as a tennis court."
     },
     liver: {
       name: "Liver",
@@ -66,10 +140,10 @@ const HumanBodyExplorer = () => {
         "Produces bile for digestion",
         "Stores vitamins and minerals",
         "Metabolizes carbohydrates, proteins, and fats",
-        "Synthesizes blood proteins",
+        "Synthesizes blood proteins"
       ],
       facts:
-        "The liver is the only organ that can regenerate itself. It can regrow to its original size even after 75% of it is removed.",
+        "The liver is the only organ that can regenerate itself. It can regrow to its original size even after 75% of it is removed."
     },
     stomach: {
       name: "Stomach",
@@ -81,9 +155,10 @@ const HumanBodyExplorer = () => {
         "Secretes hydrochloric acid to kill bacteria",
         "Produces intrinsic factor for vitamin B12 absorption",
         "Begins protein digestion",
-        "Regulates food passage into the small intestine",
+        "Regulates food passage into the small intestine"
       ],
-      facts: "Your stomach produces a new layer of mucus every two weeks to avoid digesting itself.",
+      facts:
+        "Your stomach produces a new layer of mucus every two weeks to avoid digesting itself."
     },
     kidneys: {
       name: "Kidneys",
@@ -95,9 +170,10 @@ const HumanBodyExplorer = () => {
         "Regulate electrolyte levels",
         "Control blood pressure",
         "Produce hormones for red blood cell production",
-        "Maintain acid-base balance",
+        "Maintain acid-base balance"
       ],
-      facts: "Your kidneys filter about 120-150 quarts of blood every day to produce 1-2 quarts of urine.",
+      facts:
+        "Your kidneys filter about 120-150 quarts of blood every day to produce 1-2 quarts of urine."
     },
     intestines: {
       name: "Intestines",
@@ -109,10 +185,10 @@ const HumanBodyExplorer = () => {
         "Complete the digestion process",
         "Absorb water and electrolytes",
         "Host beneficial bacteria",
-        "Eliminate waste products",
+        "Eliminate waste products"
       ],
       facts:
-        "The small intestine is about 20 feet (6 meters) long, while the large intestine is about 5 feet (1.5 meters) long.",
+        "The small intestine is about 20 feet (6 meters) long, while the large intestine is about 5 feet (1.5 meters) long."
     },
     pancreas: {
       name: "Pancreas",
@@ -124,9 +200,10 @@ const HumanBodyExplorer = () => {
         "Secretes insulin and glucagon",
         "Regulates blood sugar levels",
         "Neutralizes stomach acid",
-        "Aids in nutrient absorption",
+        "Aids in nutrient absorption"
       ],
-      facts: "The pancreas produces about 8 ounces (240 ml) of digestive juices daily.",
+      facts:
+        "The pancreas produces about 8 ounces (240 ml) of digestive juices daily."
     },
     spleen: {
       name: "Spleen",
@@ -138,10 +215,10 @@ const HumanBodyExplorer = () => {
         "Stores platelets and white blood cells",
         "Produces antibodies",
         "Helps fight certain types of bacteria",
-        "Recycles iron from hemoglobin",
+        "Recycles iron from hemoglobin"
       ],
       facts:
-        "Unlike many other organs, a person can live without a spleen, although they become more susceptible to certain infections.",
+        "Unlike many other organs, a person can live without a spleen, although they become more susceptible to certain infections."
     },
     thyroid: {
       name: "Thyroid",
@@ -153,38 +230,39 @@ const HumanBodyExplorer = () => {
         "Controls heart rate and body temperature",
         "Influences growth and development",
         "Affects nervous system function",
-        "Regulates calcium levels",
+        "Regulates calcium levels"
       ],
-      facts: "The thyroid produces hormones that affect every cell in your body.",
-    },
-  }
+      facts:
+        "The thyroid produces hormones that affect every cell in your body."
+    }
+  };
 
   // Handle messages from WebView
   const handleWebViewMessage = (event) => {
     try {
-      const data = JSON.parse(event.nativeEvent.data)
+      const data = JSON.parse(event.nativeEvent.data);
       if (data.type === "ORGAN_SELECTED") {
-        const organ = organInfo[data.organId]
+        const organ = organInfo[data.organId];
         if (organ) {
-          setSelectedOrgan(organ)
-          setShowModal(true)
+          setSelectedOrgan(organ);
+          setShowModal(true);
         }
       }
     } catch (error) {
-      console.error("Error parsing WebView message:", error)
+      console.error("Error parsing WebView message:", error);
     }
-  }
+  };
 
   // Change body system view
   const changeBodySystem = (system) => {
-    setBodySystem(system)
+    setBodySystem(system);
     if (webViewRef.current) {
       webViewRef.current.injectJavaScript(`
         changeBodySystem('${system}');
         true;
-      `)
+      `);
     }
-  }
+  };
 
   // HTML content with Matter.js for the human body
   const htmlContent = `
@@ -968,7 +1046,7 @@ const HumanBodyExplorer = () => {
       </script>
     </body>
     </html>
-  `
+  `;
 
   // System buttons data
   const systems = [
@@ -979,8 +1057,8 @@ const HumanBodyExplorer = () => {
     { id: "nervous", name: "Nervous", color: "#17A97B" },
     { id: "urinary", name: "Urinary", color: "#1C9777" },
     { id: "endocrine", name: "Endocrine", color: "#20B486" },
-    { id: "lymphatic", name: "Lymphatic", color: "#17A97B" },
-  ]
+    { id: "lymphatic", name: "Lymphatic", color: "#17A97B" }
+  ];
 
   return (
     <SafeAreaView style={styles.container}>
@@ -1000,7 +1078,9 @@ const HumanBodyExplorer = () => {
               mode={bodySystem === system.id ? "contained" : "outlined"}
               onPress={() => changeBodySystem(system.id)}
               style={styles.systemButton}
-              buttonColor={bodySystem === system.id ? system.color : "transparent"}
+              buttonColor={
+                bodySystem === system.id ? system.color : "transparent"
+              }
               textColor={bodySystem === system.id ? "white" : "#1C9777"}
               compact
             >
@@ -1024,13 +1104,20 @@ const HumanBodyExplorer = () => {
         />
       </View>
 
-      <Modal visible={showModal} transparent={true} animationType="fade" onRequestClose={() => setShowModal(false)}>
+      <Modal
+        visible={showModal}
+        transparent={true}
+        animationType="fade"
+        onRequestClose={() => setShowModal(false)}
+      >
         <View style={styles.modalOverlay}>
           <Surface style={styles.modalContent} elevation={5}>
             <Text style={styles.modalTitle}>{selectedOrgan?.name}</Text>
 
             <ScrollView style={styles.modalScroll}>
-              <Text style={styles.modalDescription}>{selectedOrgan?.description}</Text>
+              <Text style={styles.modalDescription}>
+                {selectedOrgan?.description}
+              </Text>
 
               <Text style={styles.modalSubtitle}>Functions:</Text>
               {selectedOrgan?.functions.map((func, index) => (
@@ -1059,52 +1146,52 @@ const HumanBodyExplorer = () => {
         </View>
       </Modal>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f0f8ff",
+    backgroundColor: "#f0f8ff"
   },
   header: {
     padding: 15,
     backgroundColor: "#20B486",
-    alignItems: "center",
+    alignItems: "center"
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "white",
+    color: "white"
   },
   systemSelector: {
     padding: 10,
     backgroundColor: "white",
     borderBottomWidth: 1,
-    borderBottomColor: "#A8E2D0",
+    borderBottomColor: "#A8E2D0"
   },
   systemScrollContent: {
-    paddingHorizontal: 5,
+    paddingHorizontal: 5
   },
   systemButton: {
     marginHorizontal: 4,
     borderColor: "#A8E2D0",
-    borderRadius: 20,
+    borderRadius: 20
   },
   webViewContainer: {
     flex: 1,
-    overflow: "hidden",
+    overflow: "hidden"
   },
   webView: {
     flex: 1,
-    backgroundColor: "transparent",
+    backgroundColor: "transparent"
   },
   modalOverlay: {
     flex: 1,
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 20
   },
   modalContent: {
     width: "100%",
@@ -1112,35 +1199,35 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     borderRadius: 12,
     padding: 20,
-    alignItems: "center",
+    alignItems: "center"
   },
   modalTitle: {
     fontSize: 22,
     fontWeight: "bold",
     marginBottom: 15,
-    color: "#20B486",
+    color: "#20B486"
   },
   modalScroll: {
     maxHeight: 400,
-    width: "100%",
+    width: "100%"
   },
   modalDescription: {
     fontSize: 14,
     marginBottom: 20,
     lineHeight: 22,
-    color: "#333",
+    color: "#333"
   },
   modalSubtitle: {
     fontSize: 16,
     fontWeight: "bold",
     marginBottom: 10,
     marginTop: 5,
-    color: "#1C9777",
+    color: "#1C9777"
   },
   functionItem: {
     flexDirection: "row",
     alignItems: "flex-start",
-    marginBottom: 10,
+    marginBottom: 10
   },
   bulletPoint: {
     width: 8,
@@ -1148,12 +1235,12 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     backgroundColor: "#20B486",
     marginTop: 6,
-    marginRight: 10,
+    marginRight: 10
   },
   functionText: {
     flex: 1,
     fontSize: 14,
-    color: "#333",
+    color: "#333"
   },
   factCard: {
     marginTop: 20,
@@ -1162,24 +1249,24 @@ const styles = StyleSheet.create({
     backgroundColor: "#f5f9f7",
     borderRadius: 8,
     borderLeftWidth: 4,
-    borderLeftColor: "#20B486",
+    borderLeftColor: "#20B486"
   },
   factTitle: {
     fontSize: 14,
     fontWeight: "bold",
     marginBottom: 5,
-    color: "#1C9777",
+    color: "#1C9777"
   },
   factText: {
     fontSize: 14,
     fontStyle: "italic",
-    color: "#333",
+    color: "#333"
   },
   modalButton: {
     marginTop: 15,
     borderRadius: 8,
-    paddingHorizontal: 20,
-  },
-})
+    paddingHorizontal: 20
+  }
+});
 
-export default HumanBodyExplorer
+export default HumanBodyExplorer;
