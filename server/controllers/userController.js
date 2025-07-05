@@ -4,7 +4,8 @@ import jwt from "jsonwebtoken";
 
 import admin from "firebase-admin";
 
-import serviceAccount from "../google-service.json" with { type: "json" };
+import serviceAccount from "../google-service.js";
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
 });
@@ -42,17 +43,17 @@ export const refreshToken = async (req, res) => {
 };
 
 export const getProfile = async (req, res) => {
-    const userId = req.user.id;
-    const userData = await prisma.user.findUnique({
-        where: {
-        id: userId,
-        },
-    });
-    if (!userData) {
-        return res.status(404).json({ message: "User not found" });
-    }
-    res.status(200).json(userData);
-}
+  const userId = req.user.id;
+  const userData = await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+  });
+  if (!userData) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  res.status(200).json(userData);
+};
 
 export const getUser = async (req, res) => {
   const userData = await prisma.user.findMany({});
@@ -338,7 +339,7 @@ export const sendNotification = async (
       console.error("Error sending data message:", error);
     });
 
-    await prisma.notification.create({
+  await prisma.notification.create({
     data: {
       title: notification.title,
       message: notification.body,
@@ -359,7 +360,7 @@ export const sendNotificationWData = async (req, res) => {
   sendNotification(notification, topic, data, "https://bidyarthi.vercel.app");
   console.log(data);
   //save to db
-  
+
   res.status(200).json({ message: "Notification sent successfully" });
 };
 
