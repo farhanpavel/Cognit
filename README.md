@@ -147,7 +147,9 @@ GOOGLE_CLOUD_API_KEY=
 
 
 ```
-
+For Login As Researcher Use this email & password:
+**Email**: zunaid@gmail.com
+**Password**: 123456
 
 
 ## 📜 License
